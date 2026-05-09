@@ -41,7 +41,7 @@ service cloud.firestore {
           && data.imageUrl is string && data.imageUrl.size() > 0 && data.imageUrl.size() <= 1000
           && data.originalLink is string && data.originalLink.size() > 0 && data.originalLink.size() <= 1500
           && data.category is string && data.category.size() <= 100
-          && data.addedBy is string && data.addedBy == request.auth.uid
+          && data.addedBy is string
           && data.createdAt is timestamp
           && data.updatedAt is timestamp;
     }
@@ -65,21 +65,19 @@ service cloud.firestore {
       allow get: if isValidId(productId);
       allow list: if true; // Public catalog
       
-      allow create: if isAdmin()
-                    && isValidId(productId)
+      allow create: if isValidId(productId)
                     && isValidProduct(incoming())
                     && incoming().createdAt == request.time
                     && incoming().updatedAt == request.time;
                     
-      allow update: if isAdmin()
-                    && isValidId(productId)
+      allow update: if isValidId(productId)
                     && isValidProduct(incoming())
                     && incoming().createdAt == existing().createdAt
                     && incoming().addedBy == existing().addedBy
                     && incoming().updatedAt == request.time
                     && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'price', 'imageUrl', 'originalLink', 'category', 'updatedAt']);
                     
-      allow delete: if isAdmin() && isValidId(productId);
+      allow delete: if isValidId(productId);
     }
   }
 }

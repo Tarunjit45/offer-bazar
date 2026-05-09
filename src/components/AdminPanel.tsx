@@ -44,15 +44,13 @@ export default function AdminPanel() {
       const data = await response.json();
 
       // 2. Add to Firestore
-      if (!auth.currentUser) throw new Error("Must be logged in.");
-
       const newProduct = {
         title: data.title || "Unknown",
         price: data.price || 0,
         imageUrl: data.imageUrl || "https://placehold.co/400x400/png?text=No+Image",
         originalLink: data.originalLink || url,
         category: category,
-        addedBy: auth.currentUser.uid,
+        addedBy: "admin_user",
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
