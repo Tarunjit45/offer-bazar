@@ -1,0 +1,41 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "An ecommerce product scraped from an external link",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Name of the product" },
+        "price": { "type": "number", "description": "Price of the product" },
+        "imageUrl": { "type": "string", "description": "A valid image URL" },
+        "originalLink": { "type": "string", "description": "The external site link to purchase" },
+        "category": { "type": "string", "description": "Product category" },
+        "addedBy": { "type": "string", "description": "UID of the admin who added this" },
+        "createdAt": { "type": "number", "description": "Server timestamp" },
+        "updatedAt": { "type": "number", "description": "Server timestamp" }
+      },
+      "required": ["title", "price", "imageUrl", "originalLink", "category", "addedBy", "createdAt", "updatedAt"]
+    },
+    "AdminConfig": {
+      "title": "AdminConfig",
+      "description": "Configuration identifying admins",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["email", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Public catalog of products"
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminConfig" },
+      "description": "List of admins allowed to manage products"
+    }
+  }
+}
