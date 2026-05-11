@@ -31,14 +31,21 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] font-sans text-gray-900 selection:bg-orange-100 selection:text-orange-900">
-      <nav className="border-b border-gray-200/60 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-sm transform -rotate-6">
-              <Tag className="w-5 h-5 drop-shadow-sm" />
+    <div className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900 selection:bg-orange-100 selection:text-orange-900">
+      <nav className="border-b border-gray-200/40 bg-white/70 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <div className="relative w-14 h-14 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+              <img src="/logo.jpeg" alt="OfferBazar Logo" className="w-full h-full object-contain drop-shadow-xl" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-gray-900">Offer<span className="text-orange-500">Bazar</span></span>
+            <div className="flex flex-col">
+              <span className="font-black text-2xl tracking-tighter text-gray-900 leading-none">
+                OFFER<span className="text-orange-500">BAZAR</span>
+              </span>
+              <span className="text-[10px] font-black text-orange-500 tracking-[0.3em] uppercase mt-1">
+                Loot Deals India
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">

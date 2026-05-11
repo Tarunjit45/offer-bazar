@@ -3,41 +3,79 @@ import { ExternalLink } from 'lucide-react';
 import type { Product } from '../types';
 
 export default function ProductCard({ product }: { product: Product; key?: React.Key }) {
-  // Use a nice fallback image if missing or scraping fails grabbing one temporarily
   const imageUrl = product.imageUrl || "https://placehold.co/400x300/f8fafc/94a3b8?text=No+Image+Available";
+
+  const discount = product.originalPrice && product.originalPrice > product.price
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0;
+
+  const isLoot = product.isFlashDeal || product.price < 500;
+  const tag = product.badgeTag || (isLoot ? "LOOT DEAL" : "");
 
   return (
     <a 
       href={product.originalLink} 
       target="_blank" 
       rel="noopener noreferrer"
-      className="group block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative"
+      className={`group block bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 relative ${product.isFlashDeal ? 'ring-2 ring-orange-500/20' : ''}`}
     >
-      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-semibold text-orange-600 border border-orange-100 flex items-center gap-1 z-10 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
-        Get Deal <ExternalLink className="w-3 h-3" />
+      {tag && (
+        <div className={`absolute top-4 left-4 text-[10px] font-black px-3 py-1 rounded-full z-20 shadow-lg tracking-tighter ${product.isFlashDeal ? 'bg-red-600 text-white animate-pulse' : 'bg-orange-500 text-white'}`}>
+          {tag.toUpperCase()}
+        </div>
+      )}
+      
+      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-gray-900 border border-gray-100 flex items-center gap-1.5 z-20 shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
+        GRAB NOW <ExternalLink className="w-3 h-3 text-orange-500" />
       </div>
 
-      <div className="relative aspect-square overflow-hidden bg-gray-50 flex items-center justify-center p-4">
+      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-50/50 to-white flex items-center justify-center p-8">
         <img 
           src={imageUrl} 
           alt={product.title}
-          className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-500"
+          className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out"
           onError={(e) => {
             (e.target as HTMLImageElement).src = "https://placehold.co/400x400/f8fafc/94a3b8?text=Image+Unavailable";
           }}
         />
-        <div className="absolute bottom-2 right-2 bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">
-           {product.price > 0 ? `$${product.price.toFixed(2)}` : "Check Price"}
-        </div>
+        {discount > 0 && (
+           <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-lg">
+             {discount}% SAVED
+           </div>
+        )}
       </div>
       
-      <div className="p-4">
-        <div className="text-xs font-medium text-orange-600 mb-1.5 uppercase tracking-wide">
-          {product.category}
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest bg-orange-50 px-2 py-1 rounded-md">
+            {product.category}
+          </span>
         </div>
-        <h3 className="font-semibold text-gray-900 leading-snug line-clamp-2 min-h-[2.75rem] group-hover:text-orange-600 transition-colors">
+        <h3 className="font-bold text-gray-800 leading-tight line-clamp-2 min-h-[2.5rem] group-hover:text-orange-600 transition-colors text-sm mb-2">
           {product.title}
         </h3>
+        
+        {product.description && (
+          <p className="text-[11px] text-gray-500 line-clamp-2 mb-4 font-medium leading-relaxed">
+            {product.description}
+          </p>
+        )}
+        
+        <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-black text-gray-900">
+              ₹{product.price.toLocaleString()}
+            </span>
+            {product.originalPrice && product.originalPrice > product.price && (
+              <span className="text-xs text-gray-400 line-through font-bold">
+                ₹{product.originalPrice.toLocaleString()}
+              </span>
+            )}
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+            <span className="text-[10px] font-black text-gray-400 group-hover:text-orange-500 transition-colors uppercase tracking-widest">Limited Offer</span>
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-ping"></div>
+        </div>
       </div>
     </a>
   );
