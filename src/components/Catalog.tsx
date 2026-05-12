@@ -143,19 +143,46 @@ export default function Catalog() {
         )}
       </section>
 
-      {/* SEO Section remains below */}
-      <section className="mt-32 px-4 max-w-4xl mx-auto">
-        {/* ... (keeping the existing FAQ content but simplified for space) */}
+      {/* SEO & Geo-SEO Section */}
+      <section className="mt-32 px-4 max-w-6xl mx-auto">
         <div className="bg-white rounded-[3rem] p-12 border border-gray-100 shadow-sm">
-           <h2 className="text-4xl font-black text-gray-900 mb-8 tracking-tighter uppercase">OfferBazar Guide</h2>
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+           <h2 className="text-4xl font-black text-gray-900 mb-8 tracking-tighter uppercase">OfferBazar.xyz: India's Ultimate Loot Guide</h2>
+           <p className="text-gray-500 mb-12 font-medium leading-relaxed max-w-3xl">
+             Welcome to <strong>OfferBazar.xyz</strong>, the most trusted platform for finding extreme loot deals and verified coupon codes in India. We scan thousands of products every hour to find price errors, flash sales, and exclusive discounts from top retailers like Amazon, Flipkart, Myntra, and Zomato.
+           </p>
+
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
               <div>
-                <h3 className="font-black text-orange-600 mb-2 uppercase text-xs tracking-widest">Loot Zone</h3>
-                <p className="text-sm text-gray-600 font-medium">Daily monitoring of price errors and extreme clearance sales across India.</p>
+                <h3 className="font-black text-orange-600 mb-3 uppercase text-xs tracking-widest">Loot Zone India</h3>
+                <p className="text-sm text-gray-600 font-medium leading-relaxed">
+                  The Loot Zone is where we post "Too Good To Be True" deals. Think iPhones for 1 Rs, Laptops under 500, or Sneakers for 99. These are usually limited-time flash sales or price errors.
+                </p>
               </div>
               <div>
-                <h3 className="font-black text-blue-600 mb-2 uppercase text-xs tracking-widest">Coupon Deals</h3>
-                <p className="text-sm text-gray-600 font-medium">Verified promo codes for Zomato, Swiggy, Uber, Domino's and many more.</p>
+                <h3 className="font-black text-blue-600 mb-3 uppercase text-xs tracking-widest">Verified Coupon Deals</h3>
+                <p className="text-sm text-gray-600 font-medium leading-relaxed">
+                  Looking for a Zomato coupon or a Domino's discount code? Our Coupon Deals section features the latest and most reliable promo codes to save you money on food, travel, and shopping.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-black text-green-600 mb-3 uppercase text-xs tracking-widest">Best Offers Daily</h3>
+                <p className="text-sm text-gray-600 font-medium leading-relaxed">
+                  Not everything is a loot, but everything here is a great deal. We curate the best value-for-money products so you never overpay for your favorite gadgets or fashion.
+                </p>
+              </div>
+           </div>
+
+           <div className="border-t border-gray-50 pt-12">
+              <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-6">Serving All Major Indian Cities</h4>
+              <div className="flex flex-wrap gap-x-8 gap-y-4 text-xs font-bold text-gray-400">
+                 <span className="hover:text-orange-500 transition-colors cursor-default">Deals in Delhi NCR</span>
+                 <span className="hover:text-orange-500 transition-colors cursor-default">Mumbai Flash Sales</span>
+                 <span className="hover:text-orange-500 transition-colors cursor-default">Bangalore Tech Loot</span>
+                 <span className="hover:text-orange-500 transition-colors cursor-default">Hyderabad Coupons</span>
+                 <span className="hover:text-orange-500 transition-colors cursor-default">Chennai Shopping Deals</span>
+                 <span className="hover:text-orange-500 transition-colors cursor-default">Kolkata Best Offers</span>
+                 <span className="hover:text-orange-500 transition-colors cursor-default">Pune Gadget Loot</span>
+                 <span className="hover:text-orange-500 transition-colors cursor-default">Ahmedabad Discounts</span>
               </div>
            </div>
         </div>
@@ -164,7 +191,7 @@ export default function Catalog() {
       <footer className="mt-40 px-4 pt-20 border-t border-gray-100 bg-white rounded-t-[5rem]">
         <div className="text-center pb-12">
             <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">
-              &copy; {new Date().getFullYear()} OfferBazar India. Segmented Loot & Coupons.
+              &copy; {new Date().getFullYear()} OfferBazar.xyz - India's Premium Loot & Coupon Platform.
             </p>
         </div>
       </footer>
