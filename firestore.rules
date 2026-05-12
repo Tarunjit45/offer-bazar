@@ -35,12 +35,18 @@ service cloud.firestore {
 
     // Entity Validation: Product
     function isValidProduct(data) {
-      return data.keys().hasAll(['title', 'price', 'imageUrl', 'originalLink', 'category', 'addedBy', 'createdAt', 'updatedAt']) && data.keys().size() == 8
+      // Required fields for the new segmented system
+      let requiredFields = ['title', 'price', 'imageUrl', 'originalLink', 'category', 'addedBy', 'createdAt', 'updatedAt', 'dealType', 'isFlashDeal', 'badgeTag', 'description'];
+      return data.keys().hasAll(requiredFields)
           && data.title is string && data.title.size() > 0 && data.title.size() <= 500
           && data.price is number && data.price >= 0
           && data.imageUrl is string && data.imageUrl.size() > 0 && data.imageUrl.size() <= 1000
           && data.originalLink is string && data.originalLink.size() > 0 && data.originalLink.size() <= 1500
           && data.category is string && data.category.size() <= 100
+          && data.dealType in ['loot', 'coupon', 'best_offer']
+          && data.isFlashDeal is bool
+          && data.badgeTag is string
+          && data.description is string
           && data.addedBy is string
           && data.createdAt is timestamp
           && data.updatedAt is timestamp;
@@ -48,16 +54,11 @@ service cloud.firestore {
 
     // Paths
     match /admins/{adminId} {
-      allow get: if isAdmin();
-      allow list: if false; // No blanket listing of admins
-      allow create: if isAdmin() 
-                    && isValidId(adminId) 
-                    && adminId == request.auth.uid
-                    && isValidAdminConfig(incoming())
-                    && incoming().createdAt == request.time
-                    && incoming().updatedAt == request.time;
-      allow update: if false; // Immutable roles logic
-      allow delete: if isAdmin() && adminId != request.auth.uid; // Cannot delete self
+      allow get: if isSignedIn();
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
     }
 
     match /products/{productId} {
@@ -65,19 +66,21 @@ service cloud.firestore {
       allow get: if isValidId(productId);
       allow list: if true; // Public catalog
       
-      allow create: if isValidId(productId)
+      // Only Admins can manage products
+      allow create: if isAdmin()
+                    && isValidId(productId)
                     && isValidProduct(incoming())
                     && incoming().createdAt == request.time
                     && incoming().updatedAt == request.time;
                     
-      allow update: if isValidId(productId)
+      allow update: if isAdmin()
+                    && isValidId(productId)
                     && isValidProduct(incoming())
                     && incoming().createdAt == existing().createdAt
                     && incoming().addedBy == existing().addedBy
-                    && incoming().updatedAt == request.time
-                    && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'price', 'imageUrl', 'originalLink', 'category', 'updatedAt']);
+                    && incoming().updatedAt == request.time;
                     
-      allow delete: if isValidId(productId);
+      allow delete: if isAdmin() && isValidId(productId);
     }
   }
 }
