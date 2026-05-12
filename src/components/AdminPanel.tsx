@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { db, storage } from '../lib/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { Plus, Loader2, Image as ImageIcon, Link as LinkIcon, FileText } from 'lucide-react';
 import { generateId } from '../lib/utils';
 
@@ -91,10 +91,27 @@ export default function AdminPanel() {
 
       // 2. Upload Image if local file selected
       if (imageFile) {
-        setLoadingStatus('Uploading image to storage...');
+        setLoadingStatus('Uploading image: 0%');
         const storageRef = ref(storage, `products/${generateId()}_${imageFile.name}`);
-        const snapshot = await uploadBytes(storageRef, imageFile);
-        finalImageUrl = await getDownloadURL(snapshot.ref);
+        
+        await new Promise((resolve, reject) => {
+          const uploadTask = uploadBytesResumable(storageRef, imageFile);
+          
+          uploadTask.on('state_changed', 
+            (snapshot) => {
+              const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+              setLoadingStatus(`Uploading image: ${progress}%`);
+            }, 
+            (err) => {
+              console.error("Upload error:", err);
+              reject(new Error("Storage upload failed: " + err.message));
+            }, 
+            async () => {
+              finalImageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+              resolve(true);
+            }
+          );
+        });
       }
 
       if (!finalImageUrl) {
