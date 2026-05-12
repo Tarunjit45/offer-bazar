@@ -19,11 +19,17 @@ async function startServer() {
 
       console.log(`Scraping URL: ${url}`);
       
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 5000); // 5s timeout for server-side fetch
+
       const response = await fetch(url, {
         headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        }
+        },
+        signal: controller.signal
       });
+      clearTimeout(id);
+
       if (!response.ok) {
         return res.status(response.status).json({ error: "Failed to fetch URL" });
       }
