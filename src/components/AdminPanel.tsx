@@ -15,6 +15,7 @@ export default function AdminPanel() {
   const [isFlashDeal, setIsFlashDeal] = useState(false);
   const [badgeTag, setBadgeTag] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
@@ -45,8 +46,12 @@ export default function AdminPanel() {
     }
 
     setLoading(true);
+    setLoadingStatus('Initializing...');
     setError('');
     setSuccess(false);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
     try {
       let finalImageUrl = "";
@@ -56,30 +61,47 @@ export default function AdminPanel() {
 
       // 1. Scrape if URL is provided
       if (url) {
-        const response = await fetch('/api/scrape', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url })
-        });
+        setLoadingStatus('Scraping product details...');
+        try {
+          const response = await fetch('/api/scrape', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url }),
+            signal: controller.signal
+          });
 
-        if (response.ok) {
-          const data = await response.json();
-          title = data.title || title;
-          price = data.price || price;
-          finalImageUrl = data.imageUrl || finalImageUrl;
-          originalLink = data.originalLink || url;
+          if (response.ok) {
+            const data = await response.json();
+            title = data.title || title;
+            price = data.price || price;
+            finalImageUrl = data.imageUrl || finalImageUrl;
+            originalLink = data.originalLink || url;
+          } else {
+            console.warn("Scraping failed, proceeding with manual data if available.");
+          }
+        } catch (fetchErr: any) {
+          if (fetchErr.name === 'AbortError') {
+            console.error("Scraping timed out.");
+          } else {
+            console.error("Scraping error:", fetchErr);
+          }
+          // Don't throw, allow manual upload to continue if image exists
         }
       }
 
       // 2. Upload Image if local file selected
       if (imageFile) {
+        setLoadingStatus('Uploading image to storage...');
         const storageRef = ref(storage, `products/${generateId()}_${imageFile.name}`);
         const snapshot = await uploadBytes(storageRef, imageFile);
         finalImageUrl = await getDownloadURL(snapshot.ref);
       }
 
-      if (!finalImageUrl) throw new Error("Please provide a URL or upload an image.");
+      if (!finalImageUrl) {
+        throw new Error("Could not get an image. Please upload one manually or check the URL.");
+      }
 
+      setLoadingStatus('Saving to database...');
       const newProduct = {
         title: title,
         price: price || 0,
@@ -100,6 +122,7 @@ export default function AdminPanel() {
       await setDoc(doc(db, 'products', docId), newProduct);
 
       setSuccess(true);
+      setLoadingStatus('');
       setUrl('');
       setOriginalPrice('');
       setDescription('');
@@ -108,9 +131,12 @@ export default function AdminPanel() {
       setIsFlashDeal(false);
       setDealType('best_offer');
     } catch (err: any) {
-      setError(err.message || 'An error occurred.');
+      console.error("Submit Error:", err);
+      setError(err.message || 'An error occurred while posting the deal.');
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
+      setLoadingStatus('');
     }
   };
 
@@ -234,8 +260,17 @@ export default function AdminPanel() {
           disabled={loading}
           className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2"
         >
-          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
-          Add Deal to OfferBazar
+          {loading ? (
+            <div className="flex items-center gap-3">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>{loadingStatus}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Plus className="w-5 h-5" />
+              <span>Add Deal to OfferBazar</span>
+            </div>
+          )}
         </button>
       </form>
     </div>
