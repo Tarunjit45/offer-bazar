@@ -88,8 +88,42 @@ export default function Catalog() {
               </button>
             ))}
           </div>
+
+          {/* New: Community Join Section */}
+          <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6">
+            <p className="text-gray-500 font-black uppercase text-[10px] tracking-[0.3em]">Join for instant Loot Alerts:</p>
+            <div className="flex gap-4">
+              <a 
+                href="https://t.me/offerbazaarofficial01" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-6 py-3 bg-[#0088cc] hover:bg-[#0077b3] text-white rounded-2xl font-black text-xs transition-all shadow-xl shadow-blue-500/20 active:scale-95"
+              >
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.462 8.299c.147.123.332.247.455.336.123.089.231.201.268.34.037.139.043.286.012.427-.144.939-1.278 6.096-1.963 8.147-.043.123-.105.235-.192.332-.087.097-.198.172-.321.221-.123.049-.259.071-.393.064-.134-.007-.265-.043-.383-.104-.118-.061-.22-.148-.298-.255-.078-.107-.129-.232-.148-.363-.049-.333-.314-2.113-.444-3.003-.012-.084-.04-.165-.084-.235-.044-.07-.105-.126-.176-.164-.071-.038-.152-.057-.234-.055-.082.002-.162.023-.231.061-.413.235-3.018 1.706-3.856 2.185-.098.056-.208.086-.321.086-.113 0-.224-.03-.321-.086-.413-.235-1.129-.636-1.542-.871-.123-.07-.231-.161-.321-.271s-.148-.236-.172-.37-.024-.27-.001-.403.048-.261.121-.375c.34-.531 6.814-4.524 9.176-6.09.084-.056.183-.086.284-.086.101 0 .2.03.284.086z"/></svg>
+                JOIN TELEGRAM
+              </a>
+              <a 
+                href="https://whatsapp.com/channel/0029VbBTx0y2f3EDHnwLHJ3q" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-6 py-3 bg-[#25D366] hover:bg-[#1ebd5e] text-white rounded-2xl font-black text-xs transition-all shadow-xl shadow-green-500/20 active:scale-95"
+              >
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-2.652 0-5.147 1.03-7.02 2.905-1.873 1.874-2.901 4.372-2.903 7.027-.001 2.224.646 3.734 1.555 5.237l-1.007 3.676 3.775-.99c.001 0 .001 0 0 0z"/></svg>
+                WHATSAPP CHANNEL
+              </a>
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* Floating Community Bar (Mobile/Desktop Sticky) */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 bg-white/80 backdrop-blur-xl px-6 py-4 rounded-full border border-orange-100 shadow-2xl shadow-orange-500/20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:block">Instant Alerts:</span>
+         <a href="https://t.me/offerbazaarofficial01" target="_blank" rel="noopener noreferrer" className="p-2 bg-[#0088cc] rounded-full text-white hover:scale-110 transition-transform"><svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.462 8.299c.147.123.332.247.455.336.123.089.231.201.268.34.037.139.043.286.012.427-.144.939-1.278 6.096-1.963 8.147-.043.123-.105.235-.192.332-.087.097-.198.172-.321.221-.123.049-.259.071-.393.064-.134-.007-.265-.043-.383-.104-.118-.061-.22-.148-.298-.255-.078-.107-.129-.232-.148-.363-.049-.333-.314-2.113-.444-3.003-.012-.084-.04-.165-.084-.235-.044-.07-.105-.126-.176-.164-.071-.038-.152-.057-.234-.055-.082.002-.162.023-.231.061-.413.235-3.018 1.706-3.856 2.185-.098.056-.208.086-.321.086-.113 0-.224-.03-.321-.086-.413-.235-1.129-.636-1.542-.871-.123-.07-.231-.161-.321-.271s-.148-.236-.172-.37-.024-.27-.001-.403.048-.261.121-.375c.34-.531 6.814-4.524 9.176-6.09.084-.056.183-.086.284-.086.101 0 .2.03.284.086z"/></svg></a>
+         <a href="https://whatsapp.com/channel/0029VbBTx0y2f3EDHnwLHJ3q" target="_blank" rel="noopener noreferrer" className="p-2 bg-[#25D366] rounded-full text-white hover:scale-110 transition-transform"><svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-2.652 0-5.147 1.03-7.02 2.905-1.873 1.874-2.901 4.372-2.903 7.027-.001 2.224.646 3.734 1.555 5.237l-1.007 3.676 3.775-.99c.001 0 .001 0 0 0z"/></svg></a>
+         <div className="w-[1px] h-6 bg-gray-100 mx-2"></div>
+         <p className="text-[10px] font-black text-gray-900 uppercase">Don't Miss the Next Loot!</p>
+      </div>
 
       {/* Main Content Area */}
       <section className="px-4">
