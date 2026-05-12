@@ -53,26 +53,25 @@ export default function App() {
               <div className="flex items-center gap-3">
                 <button 
                   onClick={() => setShowAdmin(!showAdmin)}
-                  className={`flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${showAdmin ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl transition-all ${showAdmin ? 'bg-orange-100 text-orange-700' : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'}`}
                 >
                   <Settings className="w-4 h-4" /> 
-                  <span className="hidden sm:inline">Admin</span>
+                  <span className="hidden sm:inline">Admin Panel</span>
                 </button>
-                <div className="h-4 w-px bg-gray-200 hidden sm:block"></div>
+                <div className="h-6 w-px bg-gray-100 hidden sm:block"></div>
                 <div className="flex items-center gap-2 pl-2">
-                  <span className="text-sm font-medium text-gray-600 hidden sm:inline">Administrator</span>
-                  <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center font-bold shadow-sm ring-2 ring-white">
+                  <div className="w-9 h-9 rounded-full bg-orange-500 text-white flex items-center justify-center font-black shadow-lg shadow-orange-500/30">
                     A
                   </div>
-                  <button onClick={handleLogout} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Log Out">
-                    <LogOut className="w-4 h-4" />
+                  <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Log Out">
+                    <LogOut className="w-5 h-5" />
                   </button>
                 </div>
               </div>
             ) : (
               <button 
                 onClick={() => setShowLoginModal(true)}
-                className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium px-4 py-2 rounded-full transition-colors"
+                className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-black px-6 py-2.5 rounded-full transition-all shadow-lg shadow-orange-500/25 active:scale-95"
                >
                  <LogIn className="w-4 h-4" /> Sign In
               </button>
@@ -83,36 +82,36 @@ export default function App() {
 
       {/* Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-4 border-b border-gray-100">
-               <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-orange-500" /> Admin Login
+        <div className="fixed inset-0 bg-orange-900/10 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden border border-orange-100 animate-in fade-in zoom-in-95 duration-300">
+            <div className="flex justify-between items-center p-6 border-b border-orange-50">
+               <h3 className="font-black text-xl flex items-center gap-2 text-gray-900 tracking-tighter">
+                  <Settings className="w-6 h-6 text-orange-500" /> ADMIN LOGIN
                </h3>
-               <button onClick={() => setShowLoginModal(false)} className="text-gray-400 hover:bg-gray-100 p-1 rounded-md">
+               <button onClick={() => setShowLoginModal(false)} className="text-gray-400 hover:bg-orange-50 hover:text-orange-600 p-2 rounded-xl transition-colors">
                  <X className="w-5 h-5" />
                </button>
             </div>
-            <form onSubmit={handleLogin} className="p-6">
-               {loginError && <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">{loginError}</div>}
-               <div className="space-y-4">
+            <form onSubmit={handleLogin} className="p-8">
+               {loginError && <div className="mb-6 text-sm font-bold text-red-600 bg-red-50 p-4 rounded-2xl border border-red-100">{loginError}</div>}
+               <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">ID</label>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Admin ID</label>
                     <input 
                       type="text" 
                       value={loginId} 
                       onChange={(e) => setLoginId(e.target.value)} 
-                      className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all font-bold"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Password</label>
                     <input 
                       type="password" 
                       value={loginPass} 
                       onChange={(e) => setLoginPass(e.target.value)} 
-                      className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5 focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all font-bold"
                       required
                     />
                   </div>

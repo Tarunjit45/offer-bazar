@@ -26,7 +26,7 @@ export default function ProductCard({ product }: { product: Product; key?: React
       )}
       
       <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-gray-900 border border-gray-100 flex items-center gap-1.5 z-20 shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
-        GRAB NOW <ExternalLink className="w-3 h-3 text-orange-500" />
+        {product.dealType === 'coupon' ? 'GET COUPON' : 'GRAB NOW'} <ExternalLink className="w-3 h-3 text-orange-500" />
       </div>
 
       <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-50/50 to-white flex items-center justify-center p-8">
@@ -39,8 +39,8 @@ export default function ProductCard({ product }: { product: Product; key?: React
           }}
         />
         {discount > 0 && (
-           <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-lg">
-             {discount}% SAVED
+           <div className="absolute bottom-4 left-4 bg-red-500 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-lg shadow-lg">
+             {discount}% OFF
            </div>
         )}
       </div>
@@ -62,13 +62,21 @@ export default function ProductCard({ product }: { product: Product; key?: React
         )}
         
         <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-gray-900">
-              ₹{product.price.toLocaleString()}
-            </span>
-            {product.originalPrice && product.originalPrice > product.price && (
-              <span className="text-xs text-gray-400 line-through font-bold">
-                ₹{product.originalPrice.toLocaleString()}
+            {product.dealType === 'coupon' && product.price === 0 ? (
+              <span className="text-xl font-black text-blue-600 uppercase tracking-tighter">
+                Redeem Now
               </span>
+            ) : (
+              <>
+                <span className="text-2xl font-black text-gray-900">
+                  ₹{product.price.toLocaleString()}
+                </span>
+                {product.originalPrice && product.originalPrice > product.price && (
+                  <span className="text-xs text-gray-400 line-through font-bold">
+                    ₹{product.originalPrice.toLocaleString()}
+                  </span>
+                )}
+              </>
             )}
         </div>
 

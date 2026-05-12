@@ -9,6 +9,7 @@ export interface Product {
     description: string;
     isFlashDeal?: boolean;
     badgeTag?: string;
+    dealType: 'loot' | 'coupon' | 'best_offer';
     addedBy: string;
     createdAt: any;
     updatedAt: any;
