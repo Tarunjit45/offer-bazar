@@ -11,15 +11,24 @@ export default function App() {
   const [loginPass, setLoginPass] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loginId === 'admin' && loginPass === 'admin') {
-      setIsAdmin(true);
-      setShowLoginModal(false);
-      setLoginId('');
-      setLoginPass('');
-      setLoginError('');
-      setShowAdmin(true);
+      try {
+        // Sign in anonymously to Firebase to allow Storage/Firestore writes
+        const { signInAnonymously } = await import('firebase/auth');
+        const { auth } = await import('./lib/firebase');
+        await signInAnonymously(auth);
+        
+        setIsAdmin(true);
+        setShowLoginModal(false);
+        setLoginId('');
+        setLoginPass('');
+        setLoginError('');
+        setShowAdmin(true);
+      } catch (authErr: any) {
+        setLoginError('Firebase Auth Error: ' + authErr.message);
+      }
     } else {
       setLoginError('Invalid credentials');
     }
