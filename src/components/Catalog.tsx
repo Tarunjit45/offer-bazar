@@ -49,67 +49,67 @@ export default function Catalog() {
   return (
     <div className="max-w-7xl mx-auto pb-20">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-24 px-4 sm:px-6 lg:px-8 mb-16 rounded-[4rem] bg-gradient-to-br from-orange-50 via-white to-orange-50/30 border border-orange-100 shadow-xl shadow-orange-500/5 text-center">
-        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[600px] h-[600px] bg-orange-200/20 rounded-full blur-[140px]"></div>
+      <section className="relative overflow-hidden pt-12 pb-20 sm:pb-24 px-4 sm:px-6 lg:px-8 mb-12 sm:mb-16 rounded-[2.5rem] sm:rounded-[4rem] bg-gradient-to-br from-orange-50 via-white to-orange-50/30 border border-orange-100 shadow-xl shadow-orange-500/5 text-center">
+        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-orange-200/20 rounded-full blur-[80px] sm:blur-[140px]"></div>
         
         <div className="relative z-10 max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-orange-100/50 border border-orange-200 text-orange-600 text-xs font-black mb-8 animate-pulse uppercase tracking-[0.2em]">
+          <div className="inline-flex items-center gap-2 px-4 sm:px-6 py-1.5 sm:py-2.5 rounded-full bg-orange-100/50 border border-orange-200 text-orange-600 text-[10px] sm:text-xs font-black mb-6 sm:mb-8 animate-pulse uppercase tracking-[0.2em]">
             ⚡ OfferBazar Segments are Live
           </div>
-          <h1 className="text-5xl sm:text-7xl font-black mb-8 tracking-tighter leading-tight text-gray-900">
-            CHOOSE YOUR <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 underline decoration-orange-500/20 decoration-8 underline-offset-8">DEAL ZONE</span>
+          <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black mb-6 sm:mb-8 tracking-tighter leading-tight text-gray-900">
+            CHOOSE YOUR <br className="hidden sm:block"/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 underline decoration-orange-500/20 decoration-4 sm:decoration-8 underline-offset-4 sm:underline-offset-8">DEAL ZONE</span>
           </h1>
           
           {/* Segment Selector */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-10 sm:mt-16 max-w-5xl mx-auto">
             {segments.map((seg) => (
               <button
                 key={seg.id}
                 onClick={() => setActiveSegment(seg.id as any)}
-                className={`relative group p-8 rounded-[2.5rem] border-2 transition-all duration-500 text-left overflow-hidden ${
+                className={`relative group p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border-2 transition-all duration-500 text-left overflow-hidden ${
                   activeSegment === seg.id 
                   ? `${seg.bg} ${seg.border} shadow-2xl shadow-${seg.id === 'loot' ? 'red' : seg.id === 'coupon' ? 'blue' : 'orange'}-500/10` 
                   : 'bg-white border-gray-100 hover:border-orange-200 hover:shadow-xl'
                 }`}
               >
                 {activeSegment === seg.id && (
-                  <div className="absolute top-0 right-0 p-4">
-                    <div className={`w-3 h-3 rounded-full ${seg.id === 'loot' ? 'bg-red-500' : seg.id === 'coupon' ? 'bg-blue-500' : 'bg-orange-500'} animate-ping`}></div>
+                  <div className="absolute top-0 right-0 p-3 sm:p-4">
+                    <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${seg.id === 'loot' ? 'bg-red-500' : seg.id === 'coupon' ? 'bg-blue-500' : 'bg-orange-500'} animate-ping`}></div>
                   </div>
                 )}
-                <seg.icon className={`w-12 h-12 mb-6 ${activeSegment === seg.id ? seg.color : 'text-gray-300 group-hover:text-orange-400'} transition-colors`} />
-                <h3 className={`text-2xl font-black mb-2 tracking-tighter uppercase ${activeSegment === seg.id ? 'text-gray-900' : 'text-gray-400'}`}>
+                <seg.icon className={`w-8 h-8 sm:w-12 sm:h-12 mb-4 sm:mb-6 ${activeSegment === seg.id ? seg.color : 'text-gray-300 group-hover:text-orange-400'} transition-colors`} />
+                <h3 className={`text-xl sm:text-2xl font-black mb-1 sm:mb-2 tracking-tighter uppercase ${activeSegment === seg.id ? 'text-gray-900' : 'text-gray-400'}`}>
                   {seg.label}
                 </h3>
-                <p className={`text-sm font-medium leading-relaxed ${activeSegment === seg.id ? 'text-gray-600' : 'text-gray-300'}`}>
+                <p className={`text-[12px] sm:text-sm font-medium leading-relaxed ${activeSegment === seg.id ? 'text-gray-600' : 'text-gray-300'}`}>
                   {seg.desc}
                 </p>
               </button>
             ))}
           </div>
 
-          {/* New: Community Join Section */}
-          <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6">
-            <p className="text-gray-500 font-black uppercase text-[10px] tracking-[0.3em]">Join for instant Loot Alerts:</p>
-            <div className="flex gap-4">
+          {/* Community Join Section */}
+          <div className="mt-12 sm:mt-16 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+            <p className="text-gray-500 font-black uppercase text-[8px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.3em]">Join for instant Loot Alerts:</p>
+            <div className="flex gap-3 sm:gap-4">
               <a 
                 href="https://t.me/offerbazaarofficial01" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-6 py-3 bg-[#0088cc] hover:bg-[#0077b3] text-white rounded-2xl font-black text-xs transition-all shadow-xl shadow-blue-500/20 active:scale-95"
+                className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#0088cc] hover:bg-[#0077b3] text-white rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs transition-all shadow-xl shadow-blue-500/20 active:scale-95"
               >
-                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.462 8.299c.147.123.332.247.455.336.123.089.231.201.268.34.037.139.043.286.012.427-.144.939-1.278 6.096-1.963 8.147-.043.123-.105.235-.192.332-.087.097-.198.172-.321.221-.123.049-.259.071-.393.064-.134-.007-.265-.043-.383-.104-.118-.061-.22-.148-.298-.255-.078-.107-.129-.232-.148-.363-.049-.333-.314-2.113-.444-3.003-.012-.084-.04-.165-.084-.235-.044-.07-.105-.126-.176-.164-.071-.038-.152-.057-.234-.055-.082.002-.162.023-.231.061-.413.235-3.018 1.706-3.856 2.185-.098.056-.208.086-.321.086-.113 0-.224-.03-.321-.086-.413-.235-1.129-.636-1.542-.871-.123-.07-.231-.161-.321-.271s-.148-.236-.172-.37-.024-.27-.001-.403.048-.261.121-.375c.34-.531 6.814-4.524 9.176-6.09.084-.056.183-.086.284-.086.101 0 .2.03.284.086z"/></svg>
-                JOIN TELEGRAM
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.462 8.299c.147.123.332.247.455.336.123.089.231.201.268.34.037.139.043.286.012.427-.144.939-1.278 6.096-1.963 8.147-.043.123-.105.235-.192.332-.087.097-.198.172-.321.221-.123.049-.259.071-.393.064-.134-.007-.265-.043-.383-.104-.118-.061-.22-.148-.298-.255-.078-.107-.129-.232-.148-.363-.049-.333-.314-2.113-.444-3.003-.012-.084-.04-.165-.084-.235-.044-.07-.105-.126-.176-.164-.071-.038-.152-.057-.234-.055-.082.002-.162.023-.231.061-.413.235-3.018 1.706-3.856 2.185-.098.056-.208.086-.321.086-.113 0-.224-.03-.321-.086-.413-.235-1.129-.636-1.542-.871-.123-.07-.231-.161-.321-.271s-.148-.236-.172-.37-.024-.27-.001-.403.048-.261.121-.375c.34-.531 6.814-4.524 9.176-6.09.084-.056.183-.086.284-.086.101 0 .2.03.284.086z"/></svg>
+                <span className="hidden xs:inline">JOIN </span>TELEGRAM
               </a>
               <a 
                 href="https://whatsapp.com/channel/0029VbBTx0y2f3EDHnwLHJ3q" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-6 py-3 bg-[#25D366] hover:bg-[#1ebd5e] text-white rounded-2xl font-black text-xs transition-all shadow-xl shadow-green-500/20 active:scale-95"
+                className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#25D366] hover:bg-[#1ebd5e] text-white rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs transition-all shadow-xl shadow-green-500/20 active:scale-95"
               >
-                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-2.652 0-5.147 1.03-7.02 2.905-1.873 1.874-2.901 4.372-2.903 7.027-.001 2.224.646 3.734 1.555 5.237l-1.007 3.676 3.775-.99c.001 0 .001 0 0 0z"/></svg>
-                WHATSAPP CHANNEL
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-2.652 0-5.147 1.03-7.02 2.905-1.873 1.874-2.901 4.372-2.903 7.027-.001 2.224.646 3.734 1.555 5.237l-1.007 3.676 3.775-.99c.001 0 .001 0 0 0z"/></svg>
+                <span className="hidden xs:inline">WHATSAPP </span>CHANNEL
               </a>
             </div>
           </div>
@@ -117,24 +117,26 @@ export default function Catalog() {
       </section>
 
       {/* Floating Community Bar (Mobile/Desktop Sticky) */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 bg-white/80 backdrop-blur-xl px-6 py-4 rounded-full border border-orange-100 shadow-2xl shadow-orange-500/20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:block">Instant Alerts:</span>
-         <a href="https://t.me/offerbazaarofficial01" target="_blank" rel="noopener noreferrer" className="p-2 bg-[#0088cc] rounded-full text-white hover:scale-110 transition-transform"><svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.462 8.299c.147.123.332.247.455.336.123.089.231.201.268.34.037.139.043.286.012.427-.144.939-1.278 6.096-1.963 8.147-.043.123-.105.235-.192.332-.087.097-.198.172-.321.221-.123.049-.259.071-.393.064-.134-.007-.265-.043-.383-.104-.118-.061-.22-.148-.298-.255-.078-.107-.129-.232-.148-.363-.049-.333-.314-2.113-.444-3.003-.012-.084-.04-.165-.084-.235-.044-.07-.105-.126-.176-.164-.071-.038-.152-.057-.234-.055-.082.002-.162.023-.231.061-.413.235-3.018 1.706-3.856 2.185-.098.056-.208.086-.321.086-.113 0-.224-.03-.321-.086-.413-.235-1.129-.636-1.542-.871-.123-.07-.231-.161-.321-.271s-.148-.236-.172-.37-.024-.27-.001-.403.048-.261.121-.375c.34-.531 6.814-4.524 9.176-6.09.084-.056.183-.086.284-.086.101 0 .2.03.284.086z"/></svg></a>
-         <a href="https://whatsapp.com/channel/0029VbBTx0y2f3EDHnwLHJ3q" target="_blank" rel="noopener noreferrer" className="p-2 bg-[#25D366] rounded-full text-white hover:scale-110 transition-transform"><svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-2.652 0-5.147 1.03-7.02 2.905-1.873 1.874-2.901 4.372-2.903 7.027-.001 2.224.646 3.734 1.555 5.237l-1.007 3.676 3.775-.99c.001 0 .001 0 0 0z"/></svg></a>
-         <div className="w-[1px] h-6 bg-gray-100 mx-2"></div>
-         <p className="text-[10px] font-black text-gray-900 uppercase">Don't Miss the Next Loot!</p>
+      <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4 rounded-full border border-orange-100 shadow-2xl shadow-orange-500/20 animate-in fade-in slide-in-from-bottom-10 duration-1000 w-[90%] sm:w-auto">
+         <span className="text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest hidden lg:block">Instant Alerts:</span>
+         <div className="flex gap-2">
+           <a href="https://t.me/offerbazaarofficial01" target="_blank" rel="noopener noreferrer" className="p-1.5 sm:p-2 bg-[#0088cc] rounded-full text-white hover:scale-110 transition-transform"><svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.462 8.299c.147.123.332.247.455.336.123.089.231.201.268.34.037.139.043.286.012.427-.144.939-1.278 6.096-1.963 8.147-.043.123-.105.235-.192.332-.087.097-.198.172-.321.221-.123.049-.259.071-.393.064-.134-.007-.265-.043-.383-.104-.118-.061-.22-.148-.298-.255-.078-.107-.129-.232-.148-.363-.049-.333-.314-2.113-.444-3.003-.012-.084-.04-.165-.084-.235-.044-.07-.105-.126-.176-.164-.071-.038-.152-.057-.234-.055-.082.002-.162.023-.231.061-.413.235-3.018 1.706-3.856 2.185-.098.056-.208.086-.321.086-.113 0-.224-.03-.321-.086-.413-.235-1.129-.636-1.542-.871-.123-.07-.231-.161-.321-.271s-.148-.236-.172-.37-.024-.27-.001-.403.048-.261.121-.375c.34-.531 6.814-4.524 9.176-6.09.084-.056.183-.086.284-.086.101 0 .2.03.284.086z"/></svg></a>
+           <a href="https://whatsapp.com/channel/0029VbBTx0y2f3EDHnwLHJ3q" target="_blank" rel="noopener noreferrer" className="p-1.5 sm:p-2 bg-[#25D366] rounded-full text-white hover:scale-110 transition-transform"><svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-2.652 0-5.147 1.03-7.02 2.905-1.873 1.874-2.901 4.372-2.903 7.027-.001 2.224.646 3.734 1.555 5.237l-1.007 3.676 3.775-.99c.001 0 .001 0 0 0z"/></svg></a>
+         </div>
+         <div className="w-[1px] h-4 sm:h-6 bg-gray-100 mx-1 sm:mx-2"></div>
+         <p className="text-[8px] sm:text-[10px] font-black text-gray-900 uppercase flex-1 truncate">Don't Miss the Next Loot!</p>
       </div>
 
       {/* Main Content Area */}
-      <section className="px-4">
+      <section className="px-0 sm:px-4">
         {/* Filters and Search */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 mb-16 bg-white p-8 rounded-[3rem] border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-4 overflow-x-auto no-scrollbar w-full lg:w-auto pb-4 lg:pb-0">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 mb-12 sm:mb-16 bg-white p-4 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-sm mx-4 sm:mx-0">
+          <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto no-scrollbar w-full lg:w-auto pb-2 lg:pb-0">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`flex-shrink-0 px-8 py-3 rounded-2xl text-xs font-black transition-all uppercase tracking-widest border-2 ${
+                className={`flex-shrink-0 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-black transition-all uppercase tracking-widest border-2 ${
                   selectedCategory === cat 
                   ? 'bg-orange-500 text-white border-orange-500 shadow-xl shadow-orange-500/20' 
                   : 'bg-gray-50 text-gray-500 border-gray-50 hover:border-orange-500 hover:text-orange-600'
@@ -146,37 +148,36 @@ export default function Catalog() {
           </div>
 
           <div className="relative w-full lg:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={`Search in ${segments.find(s => s.id === activeSegment)?.label}...`}
-              className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-50 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-bold text-gray-900 transition-all"
+              className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 bg-gray-50 border border-gray-50 rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-bold text-gray-900 transition-all text-sm sm:text-base"
             />
           </div>
         </div>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-            <Loader2 className="w-16 h-16 animate-spin text-orange-500 mb-8" />
-            <p className="text-2xl font-black tracking-tighter uppercase text-gray-300">Syncing with Live Database...</p>
+          <div className="flex flex-col items-center justify-center py-20 sm:py-32 text-gray-400">
+            <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 animate-spin text-orange-500 mb-6 sm:mb-8" />
+            <p className="text-xl sm:text-2xl font-black tracking-tighter uppercase text-gray-300">Syncing Deals...</p>
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-10 px-4 sm:px-0">
             {filteredProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-40 bg-white rounded-[4rem] border border-gray-100 shadow-inner">
-            <Search className="w-20 h-20 text-gray-100 mx-auto mb-8" />
-            <h3 className="text-3xl font-black text-gray-900 mb-4 tracking-tighter uppercase">No {activeSegment} Found</h3>
-            <p className="text-gray-400 text-lg max-w-md mx-auto font-medium">We couldn't find any deals in this segment for your selection.</p>
+          <div className="text-center py-24 sm:py-40 bg-white rounded-[2.5rem] sm:rounded-[4rem] border border-gray-100 shadow-inner mx-4 sm:mx-0">
+            <Search className="w-16 h-16 sm:w-20 sm:h-20 text-gray-100 mx-auto mb-6 sm:mb-8" />
+            <h3 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3 sm:mb-4 tracking-tighter uppercase px-4">No {activeSegment} Found</h3>
+            <p className="text-gray-400 text-base sm:text-lg max-w-md mx-auto font-medium px-4">We couldn't find any deals in this segment for your selection.</p>
           </div>
         )}
       </section>
-
       {/* SEO & Geo-SEO Section */}
       <section className="mt-32 px-4 max-w-6xl mx-auto">
         <div className="bg-white rounded-[3rem] p-12 border border-gray-100 shadow-sm">

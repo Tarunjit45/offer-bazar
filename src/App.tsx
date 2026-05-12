@@ -33,47 +33,47 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900 selection:bg-orange-100 selection:text-orange-900">
       <nav className="border-b border-gray-200/40 bg-white/70 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="relative w-14 h-14 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3 group cursor-pointer">
+            <div className="relative w-10 h-10 sm:w-14 sm:h-14 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
               <img src="/logo.jpeg" alt="OfferBazar Logo" className="w-full h-full object-contain drop-shadow-xl" />
             </div>
             <div className="flex flex-col">
-              <span className="font-black text-2xl tracking-tighter text-gray-900 leading-none">
+              <span className="font-black text-lg sm:text-2xl tracking-tighter text-gray-900 leading-none">
                 OFFER<span className="text-orange-500">BAZAR</span>
               </span>
-              <span className="text-[10px] font-black text-orange-500 tracking-[0.3em] uppercase mt-1">
+              <span className="text-[8px] sm:text-[10px] font-black text-orange-500 tracking-[0.2em] sm:tracking-[0.3em] uppercase mt-0.5 sm:mt-1">
                 Loot Deals India
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {isAdmin ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button 
                   onClick={() => setShowAdmin(!showAdmin)}
-                  className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl transition-all ${showAdmin ? 'bg-orange-100 text-orange-700' : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'}`}
+                  className={`flex items-center gap-2 text-[10px] sm:text-sm font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all ${showAdmin ? 'bg-orange-100 text-orange-700' : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'}`}
                 >
-                  <Settings className="w-4 h-4" /> 
-                  <span className="hidden sm:inline">Admin Panel</span>
+                  <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
+                  <span className="hidden xs:inline">Admin</span>
                 </button>
-                <div className="h-6 w-px bg-gray-100 hidden sm:block"></div>
-                <div className="flex items-center gap-2 pl-2">
-                  <div className="w-9 h-9 rounded-full bg-orange-500 text-white flex items-center justify-center font-black shadow-lg shadow-orange-500/30">
+                <div className="h-6 w-px bg-gray-100 hidden xs:block"></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-orange-500 text-white flex items-center justify-center font-black shadow-lg shadow-orange-500/30 text-xs">
                     A
                   </div>
-                  <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Log Out">
-                    <LogOut className="w-5 h-5" />
+                  <button onClick={handleLogout} className="p-1.5 sm:p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Log Out">
+                    <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
               </div>
             ) : (
               <button 
                 onClick={() => setShowLoginModal(true)}
-                className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-black px-6 py-2.5 rounded-full transition-all shadow-lg shadow-orange-500/25 active:scale-95"
+                className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-[10px] sm:text-sm font-black px-4 py-2 sm:px-6 sm:py-2.5 rounded-full transition-all shadow-lg shadow-orange-500/25 active:scale-95"
                >
-                 <LogIn className="w-4 h-4" /> Sign In
+                 <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">Sign In</span><span className="xs:hidden">Admin</span>
               </button>
             )}
           </div>
