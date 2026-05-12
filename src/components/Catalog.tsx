@@ -153,22 +153,36 @@ export default function Catalog() {
 
            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
               <div>
-                <h3 className="font-black text-orange-600 mb-3 uppercase text-xs tracking-widest">Loot Zone India</h3>
+                <h3 className="font-black text-orange-600 mb-3 uppercase text-xs tracking-widest">Amazon & Flipkart Loot</h3>
                 <p className="text-sm text-gray-600 font-medium leading-relaxed">
-                  The Loot Zone is where we post "Too Good To Be True" deals. Think iPhones for 1 Rs, Laptops under 500, or Sneakers for 99. These are usually limited-time flash sales or price errors.
+                  We specialize in finding <strong>Amazon Loot Deals</strong> and <strong>Flipkart Price Errors</strong>. Often, products are listed at 90% off by mistake or during flash sales. We alert you before they go out of stock!
                 </p>
               </div>
               <div>
-                <h3 className="font-black text-blue-600 mb-3 uppercase text-xs tracking-widest">Verified Coupon Deals</h3>
+                <h3 className="font-black text-blue-600 mb-3 uppercase text-xs tracking-widest">India's Best Coupon Site</h3>
                 <p className="text-sm text-gray-600 font-medium leading-relaxed">
-                  Looking for a Zomato coupon or a Domino's discount code? Our Coupon Deals section features the latest and most reliable promo codes to save you money on food, travel, and shopping.
+                  Forget searching for hours. Get verified Zomato coupons, Swiggy promo codes, and Myntra discount codes instantly on OfferBazar.xyz. We are the top-rated budget site in India.
                 </p>
               </div>
               <div>
-                <h3 className="font-black text-green-600 mb-3 uppercase text-xs tracking-widest">Best Offers Daily</h3>
+                <h3 className="font-black text-green-600 mb-3 uppercase text-xs tracking-widest">Cheapest Gadget Deals</h3>
                 <p className="text-sm text-gray-600 font-medium leading-relaxed">
-                  Not everything is a loot, but everything here is a great deal. We curate the best value-for-money products so you never overpay for your favorite gadgets or fashion.
+                  Find the <strong>best product under 500</strong> or 1000. We curate the lowest price gadgets, electronics, and fashion from all major eCommerce platforms in one place.
                 </p>
+              </div>
+           </div>
+
+           <div className="border-t border-gray-50 pt-12 mb-12">
+              <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-6">Trending Loot Searches</h4>
+              <div className="flex flex-wrap gap-x-6 gap-y-3 text-[10px] font-black text-orange-500 uppercase">
+                 <span className="hover:underline cursor-pointer">Amazon 1 Rs Loot</span>
+                 <span className="hover:underline cursor-pointer">Flipkart Price Error Today</span>
+                 <span className="hover:underline cursor-pointer">Free Sample Products India</span>
+                 <span className="hover:underline cursor-pointer">Best Phone Under 10000</span>
+                 <span className="hover:underline cursor-pointer">Zomato 50% Off Code</span>
+                 <span className="hover:underline cursor-pointer">Myntra End of Reason Sale Loot</span>
+                 <span className="hover:underline cursor-pointer">Cheapest Grocery App India</span>
+                 <span className="hover:underline cursor-pointer">Ajio Loot Deals</span>
               </div>
            </div>
 
@@ -190,8 +204,11 @@ export default function Catalog() {
 
       <footer className="mt-40 px-4 pt-20 border-t border-gray-100 bg-white rounded-t-[5rem]">
         <div className="text-center pb-12">
+            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-4">
+              Amazon, Flipkart, and other logos are trademarks of their respective owners. OfferBazar.xyz is an independent deal aggregator.
+            </p>
             <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">
-              &copy; {new Date().getFullYear()} OfferBazar.xyz - India's Premium Loot & Coupon Platform.
+              &copy; {new Date().getFullYear()} OfferBazar.xyz - India's #1 Loot & Coupon Destination.
             </p>
         </div>
       </footer>
