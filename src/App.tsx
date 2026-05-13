@@ -13,12 +13,16 @@ export default function App() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginId === 'admin' && loginPass === 'admin') {
+    // User-provided official credentials
+    const officialEmail = 'offerbazar00100@gmail.com';
+    const officialPass = 'admin@000';
+
+    if (loginId === officialEmail && loginPass === officialPass) {
       try {
-        // Sign in anonymously to Firebase to allow Storage/Firestore writes
-        const { signInAnonymously } = await import('firebase/auth');
+        // Sign in with real Firebase Auth credentials
+        const { signInWithEmailAndPassword } = await import('firebase/auth');
         const { auth } = await import('./lib/firebase');
-        await signInAnonymously(auth);
+        await signInWithEmailAndPassword(auth, officialEmail, officialPass);
         
         setIsAdmin(true);
         setShowLoginModal(false);
@@ -27,6 +31,7 @@ export default function App() {
         setLoginError('');
         setShowAdmin(true);
       } catch (authErr: any) {
+        console.error("Firebase Login Error:", authErr);
         setLoginError('Firebase Auth Error: ' + authErr.message);
       }
     } else {
