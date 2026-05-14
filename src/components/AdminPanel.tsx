@@ -107,7 +107,7 @@ export default function AdminPanel() {
 
       // 2. Upload Image if local file selected
       if (imageFile && imageFile instanceof File) {
-        setLoadingStatus('Step 2/3: Uploading image via server (CORS bypass)...');
+        setLoadingStatus('Step 2/3: Uploading image...');
         
         try {
           // Convert file to Base64 to send to our server
@@ -128,24 +128,21 @@ export default function AdminPanel() {
             })
           });
 
-          if (!uploadResponse.ok) {
-            const errorData = await uploadResponse.json();
+          if (uploadResponse.status === 405) {
+            // Static hosting - server API not available, use scraped image silently
+            console.warn("[Admin] Upload API not available on this host. Using scraped image.");
+          } else if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json().catch(() => ({ error: 'Unknown error' }));
             throw new Error(errorData.error || "Server-side upload failed");
+          } else {
+            const uploadData = await uploadResponse.json();
+            finalImageUrl = uploadData.imageUrl;
+            console.log("[Admin] Server upload success:", finalImageUrl);
           }
-
-          const uploadData = await uploadResponse.json();
-          finalImageUrl = uploadData.imageUrl;
-          console.log("[Admin] Server upload success:", finalImageUrl);
 
         } catch (uploadErr: any) {
-          console.warn("[Admin] Server upload failed, checking for fallback...", uploadErr);
-          // If we have a scraped image, we can fall back to it instead of failing completely
-          if (finalImageUrl && finalImageUrl.startsWith('http')) {
-             console.log("[Admin] Falling back to scraped image URL");
-             setError(`Warning: Image upload failed (${uploadErr.message}). Using the scraped image instead.`);
-          } else {
-             throw uploadErr;
-          }
+          console.warn("[Admin] Upload failed, using scraped image if available:", uploadErr.message);
+          // Non-fatal: continue with scraped image if available
         }
       }
 
