@@ -112,6 +112,48 @@ async function startServer() {
   });
 
 
+  // API Route to upload image to Firebase Storage (Server-side bypass for CORS)
+  app.post("/api/upload-image", async (req, res) => {
+    try {
+      const { base64, fileName, contentType } = req.body;
+      if (!base64 || !fileName) {
+        return res.status(400).json({ error: "Image data and filename are required" });
+      }
+
+      console.log(`[Upload] Processing image: ${fileName}`);
+
+      // We use the client SDK on the server to bypass CORS
+      const { initializeApp: initApp } = await import('firebase/app');
+      const { getStorage: getStor, ref: storRef, uploadBytes: upBytes, getDownloadURL: getUrl } = await import('firebase/storage');
+      const { getAuth: getA, signInWithEmailAndPassword: signIn } = await import('firebase/auth');
+      const firebaseConfig = (await import('./firebase-applet-config.json', { assert: { type: 'json' } })).default;
+
+      // Initialize (or get existing) app
+      const serverApp = initApp(firebaseConfig, "server-upload-app");
+      const serverAuth = getA(serverApp);
+      const serverStorage = getStor(serverApp, `gs://${firebaseConfig.projectId}.appspot.com`);
+
+      // Auth as admin to allow write
+      await signIn(serverAuth, 'offerbazar00100@gmail.com', 'admin@000');
+
+      // Convert base64 to Buffer
+      const buffer = Buffer.from(base64.split(',')[1] || base64, 'base64');
+      const storageRef = storRef(serverStorage, `products/${fileName}`);
+
+      console.log(`[Upload] Uploading to Firebase...`);
+      const uploadResult = await upBytes(storageRef, buffer, { contentType: contentType || 'image/jpeg' });
+      const downloadUrl = await getUrl(uploadResult.ref);
+
+      console.log(`[Upload] Success! URL: ${downloadUrl.substring(0, 50)}...`);
+      res.json({ imageUrl: downloadUrl });
+
+    } catch (err: any) {
+      console.error(`[Upload] Fatal Error:`, err);
+      res.status(500).json({ error: err.message || "Failed to upload image from server" });
+    }
+  });
+
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

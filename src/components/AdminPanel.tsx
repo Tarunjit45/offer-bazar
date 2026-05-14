@@ -107,20 +107,38 @@ export default function AdminPanel() {
 
       // 2. Upload Image if local file selected
       if (imageFile && imageFile instanceof File) {
-        setLoadingStatus('Step 2/3: Uploading image to storage...');
-        console.log("[Admin] Uploading file:", imageFile.name, "Size:", imageFile.size);
-        
-        // Sanitize filename
-        const cleanName = imageFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
-        const storageRef = ref(storage, `products/${Date.now()}_${cleanName}`);
+        setLoadingStatus('Step 2/3: Uploading image via server (CORS bypass)...');
         
         try {
-          // Using simple uploadBytes instead of Resumable to minimize CORS issues
-          const uploadResult = await uploadBytes(storageRef, imageFile);
-          finalImageUrl = await getDownloadURL(uploadResult.ref);
-          console.log("[Admin] Upload success:", finalImageUrl);
+          // Convert file to Base64 to send to our server
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(imageFile);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
+          });
+
+          const uploadResponse = await fetch('/api/upload-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              base64,
+              fileName: `${Date.now()}_${imageFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`,
+              contentType: imageFile.type
+            })
+          });
+
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.error || "Server-side upload failed");
+          }
+
+          const uploadData = await uploadResponse.json();
+          finalImageUrl = uploadData.imageUrl;
+          console.log("[Admin] Server upload success:", finalImageUrl);
+
         } catch (uploadErr: any) {
-          console.warn("[Admin] Upload failed, checking for fallback...", uploadErr);
+          console.warn("[Admin] Server upload failed, checking for fallback...", uploadErr);
           // If we have a scraped image, we can fall back to it instead of failing completely
           if (finalImageUrl && finalImageUrl.startsWith('http')) {
              console.log("[Admin] Falling back to scraped image URL");
