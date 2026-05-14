@@ -115,38 +115,10 @@ export default function AdminPanel() {
         const storageRef = ref(storage, `products/${Date.now()}_${cleanName}`);
         
         try {
-          await new Promise((resolve, reject) => {
-            const uploadTask = uploadBytesResumable(storageRef, imageFile);
-            
-            // Shorter safety timeout for the connection phase
-            const uploadTimeout = setTimeout(() => {
-              uploadTask.cancel();
-              reject(new Error("Image upload timed out. This often happens if Firebase Storage is not enabled or your connection is blocked."));
-            }, 20000);
-
-            uploadTask.on('state_changed', 
-              (snapshot) => {
-                const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                setLoadingStatus(`Step 2/3: Uploading image (${progress}%)`);
-              }, 
-              (err) => {
-                clearTimeout(uploadTimeout);
-                console.error("[Admin] Upload Error Detail:", err);
-                reject(new Error(`Storage Error: ${err.code || err.message}`));
-              }, 
-              async () => {
-                clearTimeout(uploadTimeout);
-                try {
-                  const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                  finalImageUrl = downloadUrl;
-                  console.log("[Admin] Upload success:", finalImageUrl);
-                  resolve(true);
-                } catch (urlErr: any) {
-                  reject(new Error("Failed to get download URL: " + urlErr.message));
-                }
-              }
-            );
-          });
+          // Using simple uploadBytes instead of Resumable to minimize CORS issues
+          const uploadResult = await uploadBytes(storageRef, imageFile);
+          finalImageUrl = await getDownloadURL(uploadResult.ref);
+          console.log("[Admin] Upload success:", finalImageUrl);
         } catch (uploadErr: any) {
           console.warn("[Admin] Upload failed, checking for fallback...", uploadErr);
           // If we have a scraped image, we can fall back to it instead of failing completely
@@ -182,7 +154,7 @@ export default function AdminPanel() {
         dealType: dealType,
         isFlashDeal: isFlashDeal || dealType === 'loot',
         badgeTag: badgeTag || (dealType === 'loot' ? "LOOT" : dealType === 'coupon' ? "COUPON" : ""),
-        addedBy: "admin_user",
+        addedBy: auth.currentUser?.email || "admin_user",
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       };
