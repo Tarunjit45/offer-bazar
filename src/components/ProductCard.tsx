@@ -1,9 +1,9 @@
 import React from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Trash2 } from 'lucide-react';
 import type { Product } from '../types';
 
-export default function ProductCard({ product }: { product: Product; key?: React.Key }) {
-  const imageUrl = product.imageUrl || "https://placehold.co/400x300/f8fafc/94a3b8?text=No+Image+Available";
+export default function ProductCard({ product, isAdmin, onDelete }: { product: Product; key?: React.Key; isAdmin?: boolean; onDelete?: (id: string) => void }) {
+  const imageUrl = product.imageUrl || "/logo.jpeg";
 
   const discount = product.originalPrice && product.originalPrice > product.price
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -25,8 +25,22 @@ export default function ProductCard({ product }: { product: Product; key?: React
         </div>
       )}
       
-      <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-gray-900 border border-gray-100 flex items-center gap-1.5 z-20 shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
-        {product.dealType === 'coupon' ? 'GET COUPON' : 'GRAB NOW'} <ExternalLink className="w-3 h-3 text-orange-500" />
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        {isAdmin && onDelete && (
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              if (product.id) onDelete(product.id);
+            }}
+            className="bg-white/95 backdrop-blur-md p-1.5 rounded-full text-red-500 border border-red-100 hover:bg-red-50 hover:text-red-700 transition-all z-20 shadow-sm"
+            title="Delete Deal"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
+        <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-black text-gray-900 border border-gray-100 flex items-center gap-1.5 z-20 shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
+          {product.dealType === 'coupon' ? 'GET COUPON' : 'GRAB NOW'} <ExternalLink className="w-3 h-3 text-orange-500" />
+        </div>
       </div>
 
       <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-50/50 to-white flex items-center justify-center p-8">
@@ -35,7 +49,7 @@ export default function ProductCard({ product }: { product: Product; key?: React
           alt={product.title}
           className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = "https://placehold.co/400x400/f8fafc/94a3b8?text=Image+Unavailable";
+            (e.target as HTMLImageElement).src = "/logo.jpeg";
           }}
         />
         {discount > 0 && (

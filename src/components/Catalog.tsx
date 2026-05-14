@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-error';
 import type { Product } from '../types';
 import ProductCard from './ProductCard';
 import { Search, Tag, Loader2, Zap } from 'lucide-react';
 
-export default function Catalog() {
+export default function Catalog({ isAdmin }: { isAdmin?: boolean }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -170,7 +170,21 @@ export default function Catalog() {
         ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-10 px-4 sm:px-0">
             {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                isAdmin={isAdmin} 
+                onDelete={async (id) => {
+                  if (window.confirm('Are you sure you want to delete this deal?')) {
+                    try {
+                      await deleteDoc(doc(db, 'products', id));
+                    } catch (err) {
+                      console.error('Delete failed', err);
+                      alert('Failed to delete deal');
+                    }
+                  }
+                }} 
+              />
             ))}
           </div>
         ) : (
