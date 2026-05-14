@@ -17,59 +17,97 @@ async function startServer() {
         return res.status(400).json({ error: "URL is required" });
       }
 
-      console.log(`Scraping URL: ${url}`);
+      console.log(`[Scraper] Starting: ${url}`);
       
       const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), 5000); // 5s timeout for server-side fetch
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
 
-      const response = await fetch(url, {
-        headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        },
-        signal: controller.signal
-      });
-      clearTimeout(id);
+      try {
+        const response = await fetch(url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache"
+          },
+          signal: controller.signal,
+          redirect: 'follow'
+        });
+        
+        clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        return res.status(response.status).json({ error: "Failed to fetch URL" });
+        if (!response.ok) {
+          console.error(`[Scraper] HTTP Error ${response.status} for ${url}`);
+          return res.status(response.status).json({ error: `Failed to fetch URL: ${response.statusText}` });
+        }
+
+        const html = await response.text();
+        console.log(`[Scraper] Fetched ${html.length} bytes`);
+        
+        const $ = cheerio.load(html);
+
+        // Extract Title
+        const ogTitle = $('meta[property="og:title"]').attr("content");
+        const twitterTitle = $('meta[name="twitter:title"]').attr("content");
+        const titleTag = $('title').text();
+        const title = (ogTitle || twitterTitle || titleTag || "Unknown Product").trim();
+
+        // Extract Image
+        const ogImage = $('meta[property="og:image"]').attr("content");
+        const twitterImage = $('meta[name="twitter:image"]').attr("content");
+        const firstImg = $('article img').first().attr('src') || $('main img').first().attr('src');
+        let imageUrl = ogImage || twitterImage || firstImg || "https://placehold.co/600x400/orange/white?text=No+Product+Image";
+
+        // Fix relative URLs
+        if (imageUrl.startsWith('//')) imageUrl = 'https:' + imageUrl;
+        else if (imageUrl.startsWith('/')) {
+            const baseUrl = new URL(url).origin;
+            imageUrl = baseUrl + imageUrl;
+        }
+
+        // Extract Price
+        let price = 0;
+        const priceSelectors = [
+            'meta[property="product:price:amount"]',
+            'meta[property="og:price:amount"]',
+            'meta[name="twitter:label1"]',
+            '.pdp-price strong',
+            '.price',
+            '[class*="price"]'
+        ];
+
+        for (const selector of priceSelectors) {
+            const content = $(selector).attr('content') || $(selector).text();
+            if (content) {
+                const match = content.replace(/,/g, '').match(/\d+(\.\d{1,2})?/);
+                if (match) {
+                    price = parseFloat(match[0]);
+                    if (price > 0) break;
+                }
+            }
+        }
+
+        console.log(`[Scraper] Success: "${title}" | Price: ${price} | Image: ${imageUrl.substring(0, 50)}...`);
+
+        res.json({
+          title: title.substring(0, 500),
+          imageUrl: imageUrl.substring(0, 1000),
+          price: isNaN(price) ? 0 : price,
+          originalLink: url.substring(0, 1500),
+        });
+
+      } catch (fetchErr: any) {
+        if (fetchErr.name === 'AbortError') {
+          console.error(`[Scraper] Timeout for ${url}`);
+          return res.status(408).json({ error: "Scraping timed out" });
+        }
+        throw fetchErr;
       }
-
-      const html = await response.text();
-      const $ = cheerio.load(html);
-
-      // Extract basic OG metadata
-      const ogTitle = $('meta[property="og:title"]').attr("content");
-      const ogImage = $('meta[property="og:image"]').attr("content");
-      const titleTag = $('title').text();
-      
-      // Attempt to extract some price - looking for standard schema markup or meta tags
-      let price = 0;
-      const priceMeta = $('meta[property="product:price:amount"]').attr("content") || $('meta[name="twitter:data1"]').attr("content");
-      
-      if (priceMeta) {
-          price = parseFloat(priceMeta.replace(/[^0-9.]/g, ""));
-      } else {
-          // Fallback, try to find an element with "price" class or id
-          const tempPrice = $('[class*="price"]').first().text();
-          if (tempPrice) {
-            const match = tempPrice.match(/\d+(\.\d{1,2})?/);
-            if (match) price = parseFloat(match[0]);
-          }
-      }
-
-      const title = ogTitle || titleTag || "Unknown Product";
-      const imageUrl = ogImage || "https://placehold.co/400x400/png?text=No+Image";
-
-      res.json({
-        title: title.trim().substring(0, 500),
-        imageUrl: imageUrl.substring(0, 1000),
-        price: isNaN(price) ? 0 : price,
-        originalLink: url.substring(0, 1500),
-      });
 
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Unknown error" });
+      console.error(`[Scraper] Fatal Error:`, err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Unknown error during scraping" });
     }
   });
 

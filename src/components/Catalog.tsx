@@ -38,7 +38,10 @@ export default function Catalog() {
   ];
 
   const filteredProducts = products.filter(p => {
-    const matchesSegment = p.dealType === activeSegment;
+    // Default to 'best_offer' if dealType is missing for legacy compatibility
+    const productSegment = p.dealType || 'best_offer';
+    const matchesSegment = productSegment === activeSegment;
+    
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
     return matchesSegment && matchesSearch && matchesCategory;

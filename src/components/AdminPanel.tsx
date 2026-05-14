@@ -2,22 +2,39 @@ import React, { useState } from 'react';
 import { db, storage } from '../lib/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
-import { Plus, Loader2, Image as ImageIcon, Link as LinkIcon, FileText } from 'lucide-react';
+import { Plus, Loader2, Image as ImageIcon, Link as LinkIcon, FileText, Database } from 'lucide-react';
 import { generateId } from '../lib/utils';
+import { migrateLegacyProducts } from '../lib/migration';
 
 export default function AdminPanel() {
   const [url, setUrl] = useState('');
   const [category, setCategory] = useState('Mobile Phones');
+  const [price, setPrice] = useState('');
   const [originalPrice, setOriginalPrice] = useState('');
   const [description, setDescription] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [dealType, setDealType] = useState<'loot' | 'coupon' | 'best_offer'>('best_offer');
+  const [dealType, setDealType] = useState<'loot' | 'coupon' | 'best_offer'>('loot');
   const [isFlashDeal, setIsFlashDeal] = useState(false);
   const [badgeTag, setBadgeTag] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
+  const [migrating, setMigrating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const handleMigrate = async () => {
+    if (!window.confirm("This will update all old products with default values. Continue?")) return;
+    setMigrating(true);
+    try {
+      const count = await migrateLegacyProducts();
+      alert(`Successfully updated ${count} legacy products!`);
+    } catch (err: any) {
+      console.error("Migration failed:", err);
+      alert("Migration failed: " + err.message);
+    } finally {
+      setMigrating(false);
+    }
+  };
 
   const categories = [
     "Mobile Phones", 
@@ -46,83 +63,118 @@ export default function AdminPanel() {
     }
 
     setLoading(true);
-    setLoadingStatus('Initializing...');
+    setLoadingStatus('Initializing process...');
     setError('');
     setSuccess(false);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+    console.log("[Admin] Starting product add process...");
 
     try {
       let finalImageUrl = "";
       let title = "Unknown Product";
-      let price = 0;
+      let scrapedPrice = 0;
       let originalLink = url;
 
       // 1. Scrape if URL is provided
       if (url) {
-        setLoadingStatus('Scraping product details...');
+        setLoadingStatus('Step 1/3: Scraping product details...');
+        console.log("[Admin] Scraping URL:", url);
         try {
           const response = await fetch('/api/scrape', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url }),
-            signal: controller.signal
           });
 
           if (response.ok) {
             const data = await response.json();
             title = data.title || title;
-            price = data.price || price;
+            scrapedPrice = data.price || 0;
             finalImageUrl = data.imageUrl || finalImageUrl;
             originalLink = data.originalLink || url;
+            
+            console.log("[Admin] Scrape success:", title);
+            if (!price) setPrice(scrapedPrice.toString());
           } else {
-            console.warn("Scraping failed, proceeding with manual data if available.");
+            const errorData = await response.json().catch(() => ({}));
+            console.warn("[Admin] Scrape failed:", errorData.error || response.statusText);
+            setLoadingStatus('Scrape failed, using manual data if available...');
           }
         } catch (fetchErr: any) {
-          if (fetchErr.name === 'AbortError') {
-            console.error("Scraping timed out.");
-          } else {
-            console.error("Scraping error:", fetchErr);
-          }
-          // Don't throw, allow manual upload to continue if image exists
+          console.error("[Admin] Scrape error:", fetchErr);
         }
       }
 
       // 2. Upload Image if local file selected
-      if (imageFile) {
-        setLoadingStatus('Uploading image: 0%');
-        const storageRef = ref(storage, `products/${generateId()}_${imageFile.name}`);
+      if (imageFile && imageFile instanceof File) {
+        setLoadingStatus('Step 2/3: Uploading image to storage...');
+        console.log("[Admin] Uploading file:", imageFile.name, "Size:", imageFile.size);
         
-        await new Promise((resolve, reject) => {
-          const uploadTask = uploadBytesResumable(storageRef, imageFile);
-          
-          uploadTask.on('state_changed', 
-            (snapshot) => {
-              const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-              setLoadingStatus(`Uploading image: ${progress}%`);
-            }, 
-            (err) => {
-              console.error("Upload error:", err);
-              reject(new Error("Storage upload failed: " + err.message));
-            }, 
-            async () => {
-              finalImageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-              resolve(true);
-            }
-          );
-        });
+        // Sanitize filename
+        const cleanName = imageFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
+        const storageRef = ref(storage, `products/${Date.now()}_${cleanName}`);
+        
+        try {
+          await new Promise((resolve, reject) => {
+            const uploadTask = uploadBytesResumable(storageRef, imageFile);
+            
+            // Shorter safety timeout for the connection phase
+            const uploadTimeout = setTimeout(() => {
+              uploadTask.cancel();
+              reject(new Error("Image upload timed out. This often happens if Firebase Storage is not enabled or your connection is blocked."));
+            }, 20000);
+
+            uploadTask.on('state_changed', 
+              (snapshot) => {
+                const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                setLoadingStatus(`Step 2/3: Uploading image (${progress}%)`);
+              }, 
+              (err) => {
+                clearTimeout(uploadTimeout);
+                console.error("[Admin] Upload Error Detail:", err);
+                reject(new Error(`Storage Error: ${err.code || err.message}`));
+              }, 
+              async () => {
+                clearTimeout(uploadTimeout);
+                try {
+                  const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                  finalImageUrl = downloadUrl;
+                  console.log("[Admin] Upload success:", finalImageUrl);
+                  resolve(true);
+                } catch (urlErr: any) {
+                  reject(new Error("Failed to get download URL: " + urlErr.message));
+                }
+              }
+            );
+          });
+        } catch (uploadErr: any) {
+          console.warn("[Admin] Upload failed, checking for fallback...", uploadErr);
+          // If we have a scraped image, we can fall back to it instead of failing completely
+          if (finalImageUrl && finalImageUrl.startsWith('http')) {
+             console.log("[Admin] Falling back to scraped image URL");
+             setError(`Warning: Image upload failed (${uploadErr.message}). Using the scraped image instead.`);
+          } else {
+             throw uploadErr;
+          }
+        }
       }
 
       if (!finalImageUrl) {
-        throw new Error("Could not get an image. Please upload one manually or check the URL.");
+        throw new Error("Missing image URL. Please upload an image or check the product link.");
       }
 
-      setLoadingStatus('Saving to database...');
+      // 3. Save to Database
+      setLoadingStatus('Step 3/3: Saving deal to database...');
+      console.log("[Admin] Saving to Firestore...");
+      
+      const finalPrice = parseFloat(price) || scrapedPrice || 0;
+      const parsedOriginalPrice = parseFloat(originalPrice);
+      const finalOriginalPrice = isNaN(parsedOriginalPrice) ? (finalPrice ? finalPrice * 1.2 : 0) : parsedOriginalPrice;
+
       const newProduct = {
         title: title,
-        price: price || 0,
-        originalPrice: parseFloat(originalPrice) || (price ? price * 1.2 : 0),
+        price: finalPrice,
+        originalPrice: finalOriginalPrice,
         imageUrl: finalImageUrl,
         originalLink: originalLink || "#",
         category: category,
@@ -137,21 +189,26 @@ export default function AdminPanel() {
 
       const docId = generateId();
       await setDoc(doc(db, 'products', docId), newProduct);
+      console.log("[Admin] Firestore save success:", docId);
 
       setSuccess(true);
       setLoadingStatus('');
       setUrl('');
+      setPrice('');
       setOriginalPrice('');
       setDescription('');
       setImageFile(null);
       setBadgeTag('');
       setIsFlashDeal(false);
-      setDealType('best_offer');
+      setDealType('loot');
+      
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => setSuccess(false), 5000);
+
     } catch (err: any) {
-      console.error("Submit Error:", err);
+      console.error("[Admin] Process Failed:", err);
       setError(err.message || 'An error occurred while posting the deal.');
     } finally {
-      clearTimeout(timeoutId);
       setLoading(false);
       setLoadingStatus('');
     }
@@ -159,10 +216,21 @@ export default function AdminPanel() {
 
   return (
     <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100 max-w-2xl mx-auto mb-12">
-      <h2 className="text-2xl font-bold mb-2 text-gray-900 flex items-center gap-2">
-        <Plus className="w-6 h-6 text-orange-500" />
-        Add New Deal
-      </h2>
+      <div className="flex items-start justify-between mb-2">
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <Plus className="w-6 h-6 text-orange-500" />
+          Add New Deal
+        </h2>
+        <button 
+          onClick={handleMigrate}
+          disabled={migrating}
+          className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-orange-50 text-gray-500 hover:text-orange-600 rounded-xl text-xs font-bold transition-all border border-gray-100 hover:border-orange-100"
+          title="Fix old products that aren't showing up"
+        >
+          {migrating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Database className="w-3 h-3" />}
+          {migrating ? 'Repairing...' : 'Repair Database'}
+        </button>
+      </div>
       <p className="text-sm text-gray-500 mb-8">
         Add products via link or upload manually. All deals are live instantly.
       </p>
@@ -185,15 +253,27 @@ export default function AdminPanel() {
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-              <ImageIcon className="w-3 h-3" /> Manual Image Upload
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-2"><ImageIcon className="w-3 h-3" /> Manual Image Upload</span>
+              {imageFile && (
+                <button 
+                  type="button" 
+                  onClick={() => setImageFile(null)}
+                  className="text-orange-500 hover:text-orange-600 font-bold"
+                >
+                  Clear Selection
+                </button>
+              )}
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all text-sm"
-            />
+            <div className="relative group">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all text-sm file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200"
+              />
+              {imageFile && <div className="mt-2 text-[10px] font-bold text-gray-400 truncate">Selected: {imageFile.name}</div>}
+            </div>
           </div>
         </div>
 
@@ -238,7 +318,17 @@ export default function AdminPanel() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Original Price</label>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Deal Price (Offer Price)</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+              placeholder="e.g. 99"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Original Price (MRP)</label>
             <input
               type="number"
               value={originalPrice}
@@ -247,7 +337,10 @@ export default function AdminPanel() {
               placeholder="e.g. 5000"
             />
           </div>
-           <div className="flex items-center gap-4 p-4 bg-orange-50/50 rounded-2xl border border-orange-100 h-[60px] mt-auto">
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+           <div className="flex items-center gap-4 p-4 bg-orange-50/50 rounded-2xl border border-orange-100">
              <input 
                type="checkbox" 
                id="flash" 
@@ -257,19 +350,19 @@ export default function AdminPanel() {
              />
              <label htmlFor="flash" className="text-sm font-bold text-orange-700">Urgent Flash Sale?</label>
            </div>
-        </div>
-
-        <div className="flex items-center gap-4 p-4 bg-orange-50/50 rounded-2xl border border-orange-100">
-           <div className="flex-1">
-             <label className="block text-[10px] font-black text-orange-400 uppercase tracking-widest mb-1 pl-1">Custom Badge (Optional)</label>
-             <input
-               type="text"
-               value={badgeTag}
-               onChange={(e) => setBadgeTag(e.target.value)}
-               className="w-full px-3 py-2 bg-white border border-orange-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none"
-               placeholder="e.g. 1 Rs Deal, Limited Time"
-             />
-           </div>
+           
+           <div className="flex items-center gap-4 p-4 bg-orange-50/50 rounded-2xl border border-orange-100">
+             <div className="flex-1">
+               <label className="block text-[10px] font-black text-orange-400 uppercase tracking-widest mb-1 pl-1">Custom Badge (Optional)</label>
+               <input
+                 type="text"
+                 value={badgeTag}
+                 onChange={(e) => setBadgeTag(e.target.value)}
+                 className="w-full px-3 py-2 bg-white border border-orange-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none"
+                 placeholder="e.g. 1 Rs Deal, Limited Time"
+               />
+             </div>
+          </div>
         </div>
 
         <button
