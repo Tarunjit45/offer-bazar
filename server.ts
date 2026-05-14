@@ -125,15 +125,18 @@ async function startServer() {
       console.log(`[Upload] Processing image: ${fileName}`);
 
       // We use the client SDK on the server to bypass CORS
-      const { initializeApp: initApp } = await import('firebase/app');
+      const { getApps, getApp, initializeApp: initApp } = await import('firebase/app');
       const { getStorage: getStor, ref: storRef, uploadBytes: upBytes, getDownloadURL: getUrl } = await import('firebase/storage');
       const { getAuth: getA, signInWithEmailAndPassword: signIn } = await import('firebase/auth');
       const firebaseConfig = (await import('./firebase-applet-config.json', { assert: { type: 'json' } })).default;
 
       // Initialize (or get existing) app
-      const serverApp = initApp(firebaseConfig, "server-upload-app");
+      const apps = getApps();
+      const serverApp = apps.find(app => app.name === "server-upload-app") 
+                        ? getApp("server-upload-app") 
+                        : initApp(firebaseConfig, "server-upload-app");
       const serverAuth = getA(serverApp);
-      const serverStorage = getStor(serverApp, `gs://${firebaseConfig.projectId}.appspot.com`);
+      const serverStorage = getStor(serverApp, `gs://${firebaseConfig.storageBucket}`);
 
       // Auth as admin to allow write
       await signIn(serverAuth, 'offerbazar00100@gmail.com', 'admin@000');

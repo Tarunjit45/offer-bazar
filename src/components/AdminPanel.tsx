@@ -105,44 +105,45 @@ export default function AdminPanel() {
         }
       }
 
-      // 2. Upload Image if local file selected
+      // 2. Upload Image if local file selected (Free Firestore Base64 Method)
       if (imageFile && imageFile instanceof File) {
-        setLoadingStatus('Step 2/3: Uploading image...');
+        setLoadingStatus('Step 2/3: Compressing image locally...');
         
         try {
-          // Convert file to Base64 to send to our server
-          const base64 = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(imageFile);
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = error => reject(error);
+          // Compress image to Base64 using HTML Canvas to keep it well under Firestore's 1MB limit
+          const compressedBase64 = await new Promise<string>((resolve, reject) => {
+             const reader = new FileReader();
+             reader.readAsDataURL(imageFile);
+             reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                   const canvas = document.createElement('canvas');
+                   const MAX_WIDTH = 600; // Optimal for card display
+                   const scaleSize = MAX_WIDTH / img.width;
+                   
+                   canvas.width = MAX_WIDTH;
+                   canvas.height = img.height * scaleSize;
+                   
+                   const ctx = canvas.getContext('2d');
+                   if (ctx) {
+                      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                      // output as jpeg with 70% quality (~20kb - 50kb string)
+                      resolve(canvas.toDataURL('image/jpeg', 0.7));
+                   } else {
+                      resolve(img.src);
+                   }
+                };
+                img.onerror = () => reject(new Error("Failed to load image for compression"));
+             };
+             reader.onerror = error => reject(error);
           });
 
-          const uploadResponse = await fetch('/api/upload-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              base64,
-              fileName: `${Date.now()}_${imageFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`,
-              contentType: imageFile.type
-            })
-          });
-
-          if (uploadResponse.status === 405) {
-            // Static hosting - server API not available, use scraped image silently
-            console.warn("[Admin] Upload API not available on this host. Using scraped image.");
-          } else if (!uploadResponse.ok) {
-            const errorData = await uploadResponse.json().catch(() => ({ error: 'Unknown error' }));
-            throw new Error(errorData.error || "Server-side upload failed");
-          } else {
-            const uploadData = await uploadResponse.json();
-            finalImageUrl = uploadData.imageUrl;
-            console.log("[Admin] Server upload success:", finalImageUrl);
-          }
+          finalImageUrl = compressedBase64;
+          console.log("[Admin] Frontend compression success! Length:", finalImageUrl.length);
 
         } catch (uploadErr: any) {
-          console.warn("[Admin] Upload failed, using scraped image if available:", uploadErr.message);
-          // Non-fatal: continue with scraped image if available
+          console.warn("[Admin] Compression failed, using scraped image if available:", uploadErr.message);
         }
       }
 
