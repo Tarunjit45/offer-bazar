@@ -2,12 +2,15 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import * as path from "path";
 import * as cheerio from "cheerio";
+import cors from "cors";
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  // Middleware
+  app.use(express.json({ limit: '10mb' }));
+  app.use(cors());
 
   // API Route to scrape product from external URL
   app.post("/api/scrape", async (req, res) => {
@@ -111,7 +114,6 @@ async function startServer() {
     }
   });
 
-
   // API Route to upload image to Firebase Storage (Server-side bypass for CORS)
   app.post("/api/upload-image", async (req, res) => {
     try {
@@ -152,7 +154,6 @@ async function startServer() {
       res.status(500).json({ error: err.message || "Failed to upload image from server" });
     }
   });
-
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

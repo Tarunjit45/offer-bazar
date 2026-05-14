@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { db, storage } from '../lib/firebase';
+import { db, storage, auth } from '../lib/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { Plus, Loader2, Image as ImageIcon, Link as LinkIcon, FileText, Database } from 'lucide-react';
