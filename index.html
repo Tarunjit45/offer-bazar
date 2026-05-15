@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     
     <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.firebaseapp.com https://*.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebasestorage.googleapis.com;">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -13,126 +14,22 @@
     <link rel="preload" href="/logo.jpeg" as="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
+
     <!-- SEO Meta Tags -->
-    <title>OfferBazar | #1 Site for Amazon Loot Alerts, 1 Rs Sales & Flipkart Price Errors</title>
-    <meta name="description" content="Welcome to OfferBazar.xyz, India's premier destination for 1 Rs Loot deals, hidden price errors, and verified promo codes for Amazon, Flipkart, Myntra, and more." />
-    <meta name="keywords" content="OfferBazar, offer bazar, offerbazar.xyz, amazon loot deals, flipkart price error today, myntra coupon code, best product under 500, cheapest online shopping india, 1 rs iphone loot, free sample india, best loot site 2026, zomato promo code, best deals today india, telegram loot channel" />
-    <meta name="author" content="OfferBazar Deals Team" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <title>OfferBazar | India's #1 Site for Loot Alerts & 1 Rs Sales</title>
+    <meta name="description" content="Get instant alerts for Amazon loot deals, 1 Rs sales, and Flipkart price errors. Curated deals on Mobiles, Electronics, and Fashion updated every minute." />
+    <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://offerbazar.xyz/" />
-    
-    <!-- Geo Tags for India SEO -->
-    <meta name="geo.region" content="IN" />
-    <meta name="geo.placename" content="India" />
-    <meta name="geo.position" content="20.593684;78.96288" />
-    <meta name="ICBM" content="20.593684, 78.96288" />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://offerbazar.xyz/" />
-    <meta property="og:title" content="OfferBazar | Cheaper Than Amazon & Flipkart - 1 Rs Loot" />
-    <meta property="og:description" content="Stop overpaying! OfferBazar finds price errors and loot deals before they expire. iPhones, Gadgets, and Coupons at 90% off." />
-    <meta property="og:image" content="/logo.jpeg" />
 
-    <!-- Aggressive Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "OfferBazar",
-      "url": "https://offerbazar.xyz/",
-      "logo": "https://offerbazar.xyz/logo.jpeg",
-      "description": "India's #1 aggregator for Amazon loot, Flipkart price drops, and verified coupons.",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "contactType": "customer service",
-        "areaServed": "IN",
-        "availableLanguage": ["en", "hi"]
-      }
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "OfferBazar",
-      "url": "https://offerbazar.xyz/",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://offerbazar.xyz/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [{
-        "@type": "Question",
-        "name": "Which is the best site for loot deals in India?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "OfferBazar.xyz is the best site for loot deals in India, providing real-time alerts for Amazon, Flipkart price errors and 1 Rs flash sales."
-        }
-      }, {
-        "@type": "Question",
-        "name": "How to get products cheaper than Amazon and Flipkart?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "By using OfferBazar.xyz, you can find hidden price drops and loot offers that are much cheaper than standard prices on Amazon and Flipkart."
-        }
-      }, {
-        "@type": "Question",
-        "name": "Where can I find 1 Rs deals online?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "OfferBazar.xyz tracks extreme price drops where products like iPhones and gadgets are listed for 1 Rs during special flash loot events."
-        }
-      }]
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "OfferBazar",
-      "url": "https://offerbazar.xyz/",
-      "applicationCategory": "ShoppingApplication",
-      "operatingSystem": "All",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "INR"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "ratingCount": "12500"
-      }
-    }
-    </script>
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://offerbazar.xyz/" />
-    <meta property="twitter:title" content="OfferBazar | Amazon & Flipkart Loot Alerts" />
-    <meta property="twitter:description" content="Extreme savings on OfferBazar.xyz. Best deals under low price for all categories." />
-    <meta property="twitter:image" content="/logo.jpeg" />
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/jpeg" href="/logo.jpeg" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <!-- INLINE CRITICAL CSS (LCP Optimization) -->
     <style>
-      body {
-        font-family: 'Outfit', sans-serif;
-      }
+      :root { --bg: #f9fafb; --primary: #f97316; }
+      body { background-color: var(--bg); margin: 0; font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; }
+      .initial-loader { display: flex; align-items: center; justify-content: center; height: 100vh; background: white; }
+      #root { min-height: 100vh; }
+      .header-bg { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #f3f4f6; position: sticky; top: 0; z-index: 50; }
     </style>
   </head>
   <body>

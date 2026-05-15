@@ -74,21 +74,23 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
 
   return (
     <div className="max-w-7xl mx-auto pb-20">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-20 sm:pb-24 px-4 sm:px-6 lg:px-8 mb-12 sm:mb-16 rounded-[2.5rem] sm:rounded-[4rem] bg-gradient-to-br from-orange-50 via-white to-orange-50/30 border border-orange-100 shadow-xl shadow-orange-500/5 text-center">
-        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-orange-200/20 rounded-full blur-[80px] sm:blur-[140px]"></div>
-        
+      {/* Optimized Hero Section */}
+      <section className="relative pt-12 pb-16 px-4 sm:px-6 lg:px-8 mb-10 rounded-[2.5rem] sm:rounded-[3rem] bg-orange-50/10 border border-orange-100/50 text-center">
         <div className="relative z-10 max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 sm:px-6 py-1.5 sm:py-2.5 rounded-full bg-orange-100/50 border border-orange-200 text-orange-600 text-[10px] sm:text-xs font-black mb-6 sm:mb-8 animate-pulse uppercase tracking-[0.2em]">
-            ⚡ OfferBazar Segments are Live
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-[10px] sm:text-xs font-black mb-6 uppercase tracking-[0.2em]">
+            ⚡ Real-Time Deals
           </div>
-          <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black mb-6 sm:mb-8 tracking-tighter leading-tight text-gray-900">
-            CHOOSE YOUR <br className="hidden sm:block"/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 underline decoration-orange-500/20 decoration-4 sm:decoration-8 underline-offset-4 sm:underline-offset-8">DEAL ZONE</span>
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black mb-6 tracking-tighter leading-none text-gray-900 uppercase">
+            Choose Your <br className="hidden sm:block"/>
+            <span className="text-orange-600">Deal Zone</span>
           </h1>
           
+          <p className="text-gray-600 text-sm sm:text-base mb-10 font-bold">
+            Curated loot deals from Amazon, Flipkart and Myntra updated every 60 seconds.
+          </p>
+
           {/* Segment Selector */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-10 sm:mt-16 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto">
             {segments.map((seg) => (
               <button
                 key={seg.id}
