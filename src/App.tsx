@@ -85,7 +85,7 @@ export default function App() {
                   <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-orange-500 text-white flex items-center justify-center font-black shadow-lg shadow-orange-500/30 text-xs">
                     A
                   </div>
-                  <button onClick={handleLogout} className="p-1.5 sm:p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Log Out">
+                  <button onClick={handleLogout} className="p-1.5 sm:p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Log Out">
                     <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
@@ -110,7 +110,7 @@ export default function App() {
                <h3 className="font-black text-xl flex items-center gap-2 text-gray-900 tracking-tighter">
                   <Settings className="w-6 h-6 text-orange-500" /> ADMIN LOGIN
                </h3>
-               <button onClick={() => setShowLoginModal(false)} className="text-gray-400 hover:bg-orange-50 hover:text-orange-600 p-2 rounded-xl transition-colors">
+               <button onClick={() => setShowLoginModal(false)} className="text-gray-500 hover:bg-orange-50 hover:text-orange-600 p-2 rounded-xl transition-colors">
                  <X className="w-5 h-5" />
                </button>
             </div>
@@ -118,7 +118,7 @@ export default function App() {
                {loginError && <div className="mb-6 text-sm font-bold text-red-600 bg-red-50 p-4 rounded-2xl border border-red-100">{loginError}</div>}
                <div className="space-y-6">
                   <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Admin ID</label>
+                    <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Admin ID</label>
                     <input 
                       type="text" 
                       value={loginId} 
@@ -128,7 +128,7 @@ export default function App() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Password</label>
+                    <label className="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Password</label>
                     <input 
                       type="password" 
                       value={loginPass} 

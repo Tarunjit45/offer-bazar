@@ -91,6 +91,8 @@ const ProductCard = React.memo(({ product, isAdmin, onEdit, onDelete }: { produc
         <img 
           src={imageUrl} 
           alt={product.title}
+          loading="lazy"
+          decoding="async"
           className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-500 ease-out"
           onError={(e) => {
             (e.target as HTMLImageElement).src = "/logo.jpeg";
@@ -132,7 +134,7 @@ const ProductCard = React.memo(({ product, isAdmin, onEdit, onDelete }: { produc
                     ₹{product.price.toLocaleString()}
                   </span>
                   {product.originalPrice && product.originalPrice > product.price && (
-                    <span className="text-[8px] text-gray-400 line-through font-bold">
+                    <span className="text-[8px] text-gray-500 line-through font-bold">
                       ₹{product.originalPrice.toLocaleString()}
                     </span>
                   )}
