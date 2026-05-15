@@ -74,18 +74,16 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
 
   return (
     <div className="max-w-7xl mx-auto pb-20">
-      {/* Optimized Hero Section */}
-      <section className="relative pt-12 pb-16 px-4 sm:px-6 lg:px-8 mb-10 rounded-[2.5rem] sm:rounded-[3rem] bg-orange-50/10 border border-orange-100/50 text-center">
+      <section className="hero-section">
         <div className="relative z-10 max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-[10px] sm:text-xs font-black mb-6 uppercase tracking-[0.2em]">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100 text-orange-600 text-[10px] sm:text-xs font-black mb-6 uppercase tracking-[0.2em]">
             ⚡ Real-Time Deals
           </div>
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black mb-6 tracking-tighter leading-none text-gray-900 uppercase">
+          <h1 className="hero-title">
             Choose Your <br className="hidden sm:block"/>
             <span className="text-orange-600">Deal Zone</span>
           </h1>
-          
-          <p className="text-gray-600 text-sm sm:text-base mb-10 font-bold">
+          <p className="text-gray-600 text-sm sm:text-base font-bold">
             Curated loot deals from Amazon, Flipkart and Myntra updated every 60 seconds.
           </p>
 
