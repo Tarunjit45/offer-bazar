@@ -14,7 +14,6 @@ const ProductCard = React.memo(({ product, isAdmin, onEdit, onDelete }: { produc
     : 0;
 
   const hasTracked = useRef(false);
-  const [liveViewers] = useState(() => Math.floor(Math.random() * 25) + 8);
 
   useEffect(() => {
     if (product.id && !isAdmin && !hasTracked.current) {
@@ -112,13 +111,6 @@ const ProductCard = React.memo(({ product, isAdmin, onEdit, onDelete }: { produc
         </div>
       )}
 
-      {/* Public FOMO Badge (Demo Data) */}
-      {!isAdmin && (
-        <div className="absolute top-1.5 right-1.5 z-20 flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm border border-orange-50 animate-pulse">
-          <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-          <span className="text-[7px] font-black text-gray-800 uppercase tracking-tighter">{liveViewers} viewing now</span>
-        </div>
-      )}
       {tag && (
         <div className={`absolute top-1.5 left-1.5 text-[7px] font-black px-1.5 py-0.5 rounded-md z-20 shadow-sm tracking-tighter ${product.isFlashDeal ? 'bg-red-600 text-white animate-pulse' : 'bg-orange-500 text-white'}`}>
           {tag.toUpperCase()}
