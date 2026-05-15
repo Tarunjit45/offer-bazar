@@ -14,4 +14,6 @@ export interface Product {
     createdAt: any;
     updatedAt: any;
     expireAt: any;
+    views?: number;
+    clicks?: number;
 }
