@@ -39,16 +39,24 @@ export default function App() {
     }
   };
 
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+
   const handleLogout = () => {
     setIsAdmin(false);
     setShowAdmin(false);
+  };
+
+  const startEditing = (product: any) => {
+    setEditingProduct(product);
+    setShowAdmin(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900 selection:bg-orange-100 selection:text-orange-900">
       <nav className="border-b border-gray-200/40 bg-white/70 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3 group cursor-pointer">
+          <div className="flex items-center gap-2 sm:gap-3 group cursor-pointer" onClick={() => {setShowAdmin(false); setEditingProduct(null);}}>
             <div className="relative w-10 h-10 sm:w-14 sm:h-14 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
               <img src="/logo.jpeg" alt="OfferBazar Logo" className="w-full h-full object-contain drop-shadow-xl" />
             </div>
@@ -66,7 +74,7 @@ export default function App() {
             {isAdmin ? (
               <div className="flex items-center gap-2 sm:gap-3">
                 <button 
-                  onClick={() => setShowAdmin(!showAdmin)}
+                  onClick={() => {setShowAdmin(!showAdmin); setEditingProduct(null);}}
                   className={`flex items-center gap-2 text-[10px] sm:text-sm font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all ${showAdmin ? 'bg-orange-100 text-orange-700' : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600'}`}
                 >
                   <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
@@ -140,10 +148,14 @@ export default function App() {
 
       <main className="px-4 sm:px-6 lg:px-8 py-8">
         {(isAdmin && showAdmin) && (
-           <AdminPanel />
+           <AdminPanel 
+             editingProduct={editingProduct} 
+             onCancel={() => {setEditingProduct(null); setShowAdmin(false);}} 
+             onSuccess={() => {setEditingProduct(null);}}
+           />
         )}
         
-        <Catalog isAdmin={isAdmin} />
+        <Catalog isAdmin={isAdmin} onEdit={startEditing} />
       </main>
 
       <footer className="border-t border-gray-100 py-8 text-center text-sm text-gray-500 bg-white mt-12">

@@ -6,13 +6,13 @@ import type { Product } from '../types';
 import ProductCard from './ProductCard';
 import { Search, Tag, Loader2, Zap } from 'lucide-react';
 
-export default function Catalog({ isAdmin }: { isAdmin?: boolean }) {
+export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit?: (product: Product) => void }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeSegment, setActiveSegment] = useState<'loot' | 'coupon' | 'best_offer'>('loot');
-
+// ... existing useEffect ...
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
     
@@ -23,6 +23,25 @@ export default function Catalog({ isAdmin }: { isAdmin?: boolean }) {
       });
       setProducts(data);
       setLoading(false);
+
+      // Handle deep linking/sharing (?deal=ID)
+      const urlParams = new URLSearchParams(window.location.search);
+      const dealId = urlParams.get('deal');
+      if (dealId && data.length > 0) {
+        const product = data.find(p => p.id === dealId);
+        if (product) {
+          // If the deal is in a different segment, we might need to switch (optional enhancement)
+          // For now, let's just wait for render and scroll
+          setTimeout(() => {
+            const element = document.getElementById(`product-${dealId}`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              element.classList.add('ring-4', 'ring-orange-500', 'ring-offset-4');
+              setTimeout(() => element.classList.remove('ring-4', 'ring-orange-500', 'ring-offset-4'), 3000);
+            }
+          }, 500);
+        }
+      }
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, 'products');
       setLoading(false);
@@ -44,7 +63,11 @@ export default function Catalog({ isAdmin }: { isAdmin?: boolean }) {
     
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
-    return matchesSegment && matchesSearch && matchesCategory;
+
+    // Filter out expired products (if expireAt exists)
+    const isExpired = p.expireAt && p.expireAt.toDate() <= new Date();
+
+    return matchesSegment && matchesSearch && matchesCategory && !isExpired;
   });
 
   const categories = ['All', ...Array.from(new Set(products.filter(p => p.dealType === activeSegment).map(p => p.category)))];
@@ -168,24 +191,49 @@ export default function Catalog({ isAdmin }: { isAdmin?: boolean }) {
             <p className="text-xl sm:text-2xl font-black tracking-tighter uppercase text-gray-300">Syncing Deals...</p>
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-10 px-4 sm:px-0">
-            {filteredProducts.map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                isAdmin={isAdmin} 
-                onDelete={async (id) => {
-                  if (window.confirm('Are you sure you want to delete this deal?')) {
-                    try {
-                      await deleteDoc(doc(db, 'products', id));
-                    } catch (err) {
-                      console.error('Delete failed', err);
-                      alert('Failed to delete deal');
-                    }
-                  }
-                }} 
-              />
-            ))}
+          <div className="space-y-16">
+            {categories.filter(cat => cat !== 'All').map(category => {
+              const categoryProducts = filteredProducts.filter(p => p.category === category);
+              if (categoryProducts.length === 0) return null;
+
+              return (
+                <div key={category} className="space-y-6">
+                  <div className="flex items-center justify-between px-4 sm:px-0">
+                    <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tighter uppercase flex items-center gap-3">
+                      <span className="w-2 h-8 bg-orange-500 rounded-full"></span>
+                      {category}
+                    </h2>
+                    <span className="text-[10px] font-black text-orange-500 bg-orange-50 px-3 py-1 rounded-full uppercase tracking-widest border border-orange-100">
+                      {categoryProducts.length} Deals
+                    </span>
+                  </div>
+                  
+                  <div className="relative group">
+                    <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-6 px-4 sm:px-0 no-scrollbar scroll-smooth">
+                      {categoryProducts.map(product => (
+                        <div key={product.id} id={`product-${product.id}`} className="flex-shrink-0 w-[140px] sm:w-[180px] scroll-mt-24 transition-all duration-500 rounded-2xl">
+                          <ProductCard 
+                            product={product} 
+                            isAdmin={isAdmin} 
+                            onEdit={onEdit}
+                            onDelete={async (id) => {
+                              if (window.confirm('Are you sure you want to delete this deal?')) {
+                                try {
+                                  await deleteDoc(doc(db, 'products', id));
+                                } catch (err) {
+                                  console.error('Delete failed', err);
+                                  alert('Failed to delete deal');
+                                }
+                              }
+                            }} 
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-24 sm:py-40 bg-white rounded-[2.5rem] sm:rounded-[4rem] border border-gray-100 shadow-inner mx-4 sm:mx-0">

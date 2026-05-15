@@ -1,26 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db, storage, auth } from '../lib/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, deleteDoc, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
-import { Plus, Loader2, Image as ImageIcon, Link as LinkIcon, FileText, Database } from 'lucide-react';
+import { Plus, Loader2, Image as ImageIcon, Link as LinkIcon, FileText, Database, Save, X, Trash } from 'lucide-react';
 import { generateId } from '../lib/utils';
 import { migrateLegacyProducts } from '../lib/migration';
+import type { Product } from '../types';
 
-export default function AdminPanel() {
-  const [url, setUrl] = useState('');
-  const [category, setCategory] = useState('Mobile Phones');
-  const [price, setPrice] = useState('');
-  const [originalPrice, setOriginalPrice] = useState('');
-  const [description, setDescription] = useState('');
+export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { editingProduct?: Product | null; onCancel?: () => void; onSuccess?: () => void }) {
+  // Auto-cleanup old products (older than 2 months)
+  useEffect(() => {
+    const cleanupOldProducts = async () => {
+      console.log("[Admin] Checking for expired products...");
+      const now = new Date();
+      const q = query(collection(db, 'products'), where('expireAt', '<=', now));
+      
+      try {
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          console.log(`[Admin] Found ${querySnapshot.size} expired products. Deleting...`);
+          const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+          await Promise.all(deletePromises);
+          console.log("[Admin] Cleanup complete.");
+        }
+      } catch (err) {
+        console.error("[Admin] Cleanup error:", err);
+      }
+    };
+
+    cleanupOldProducts();
+  }, []);
+  const [url, setUrl] = useState(editingProduct?.originalLink || '');
+  const [category, setCategory] = useState(editingProduct?.category || 'Mobile Phones');
+  const [price, setPrice] = useState(editingProduct?.price.toString() || '');
+  const [originalPrice, setOriginalPrice] = useState(editingProduct?.originalPrice?.toString() || '');
+  const [description, setDescription] = useState(editingProduct?.description || '');
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [dealType, setDealType] = useState<'loot' | 'coupon' | 'best_offer'>('loot');
-  const [isFlashDeal, setIsFlashDeal] = useState(false);
-  const [badgeTag, setBadgeTag] = useState('');
+  const [dealType, setDealType] = useState<'loot' | 'coupon' | 'best_offer'>(editingProduct?.dealType || 'loot');
+  const [isFlashDeal, setIsFlashDeal] = useState(editingProduct?.isFlashDeal || false);
+  const [badgeTag, setBadgeTag] = useState(editingProduct?.badgeTag || '');
   const [loading, setLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
   const [migrating, setMigrating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  // Use effect to update state if editingProduct changes
+  React.useEffect(() => {
+    if (editingProduct) {
+      setUrl(editingProduct.originalLink);
+      setCategory(editingProduct.category);
+      setPrice(editingProduct.price.toString());
+      setOriginalPrice(editingProduct.originalPrice?.toString() || '');
+      setDescription(editingProduct.description);
+      setDealType(editingProduct.dealType);
+      setIsFlashDeal(editingProduct.isFlashDeal || false);
+      setBadgeTag(editingProduct.badgeTag || '');
+    }
+  }, [editingProduct]);
 
   const handleMigrate = async () => {
     if (!window.confirm("This will update all old products with default values. Continue?")) return;
@@ -36,7 +73,7 @@ export default function AdminPanel() {
     }
   };
 
-  const categories = [
+  const categories = [ /* ... categories list ... */
     "Mobile Phones", 
     "Laptops & PCs", 
     "Electronics", 
@@ -49,10 +86,10 @@ export default function AdminPanel() {
     "Miscellaneous"
   ];
 
-  const handleAddProduct = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!url && !imageFile) {
+    if (!url && !imageFile && !editingProduct?.imageUrl) {
       setError("Please provide at least a product link or upload an image.");
       return;
     }
@@ -63,22 +100,19 @@ export default function AdminPanel() {
     }
 
     setLoading(true);
-    setLoadingStatus('Initializing process...');
+    setLoadingStatus(editingProduct ? 'Updating product...' : 'Initializing process...');
     setError('');
     setSuccess(false);
 
-    console.log("[Admin] Starting product add process...");
-
     try {
-      let finalImageUrl = "";
-      let title = "Unknown Product";
+      let finalImageUrl = editingProduct?.imageUrl || "";
+      let title = editingProduct?.title || "Unknown Product";
       let scrapedPrice = 0;
       let originalLink = url;
 
-      // 1. Scrape if URL is provided
-      if (url) {
+      // 1. Scrape if URL is provided and it's changed (or if it's a new product)
+      if (url && url !== editingProduct?.originalLink) {
         setLoadingStatus('Step 1/3: Scraping product details...');
-        console.log("[Admin] Scraping URL:", url);
         try {
           const response = await fetch('/api/scrape', {
             method: 'POST',
@@ -93,24 +127,18 @@ export default function AdminPanel() {
             finalImageUrl = data.imageUrl || finalImageUrl;
             originalLink = data.originalLink || url;
             
-            console.log("[Admin] Scrape success:", title);
             if (!price) setPrice(scrapedPrice.toString());
-          } else {
-            const errorData = await response.json().catch(() => ({}));
-            console.warn("[Admin] Scrape failed:", errorData.error || response.statusText);
-            setLoadingStatus('Scrape failed, using manual data if available...');
           }
         } catch (fetchErr: any) {
           console.error("[Admin] Scrape error:", fetchErr);
         }
       }
 
-      // 2. Upload Image if local file selected (Free Firestore Base64 Method)
+      // 2. Upload Image if local file selected
       if (imageFile && imageFile instanceof File) {
         setLoadingStatus('Step 2/3: Compressing image locally...');
         
         try {
-          // Compress image to Base64 using HTML Canvas to keep it well under Firestore's 1MB limit
           const compressedBase64 = await new Promise<string>((resolve, reject) => {
              const reader = new FileReader();
              reader.readAsDataURL(imageFile);
@@ -119,16 +147,13 @@ export default function AdminPanel() {
                 img.src = event.target?.result as string;
                 img.onload = () => {
                    const canvas = document.createElement('canvas');
-                   const MAX_WIDTH = 600; // Optimal for card display
+                   const MAX_WIDTH = 600;
                    const scaleSize = MAX_WIDTH / img.width;
-                   
                    canvas.width = MAX_WIDTH;
                    canvas.height = img.height * scaleSize;
-                   
                    const ctx = canvas.getContext('2d');
                    if (ctx) {
                       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                      // output as jpeg with 70% quality (~20kb - 50kb string)
                       resolve(canvas.toDataURL('image/jpeg', 0.7));
                    } else {
                       resolve(img.src);
@@ -140,10 +165,8 @@ export default function AdminPanel() {
           });
 
           finalImageUrl = compressedBase64;
-          console.log("[Admin] Frontend compression success! Length:", finalImageUrl.length);
-
         } catch (uploadErr: any) {
-          console.warn("[Admin] Compression failed, using scraped image if available:", uploadErr.message);
+          console.warn("[Admin] Compression failed:", uploadErr.message);
         }
       }
 
@@ -152,14 +175,17 @@ export default function AdminPanel() {
       }
 
       // 3. Save to Database
-      setLoadingStatus('Step 3/3: Saving deal to database...');
-      console.log("[Admin] Saving to Firestore...");
+      setLoadingStatus('Step 3/3: Saving to database...');
       
       const finalPrice = parseFloat(price) || scrapedPrice || 0;
       const parsedOriginalPrice = parseFloat(originalPrice);
       const finalOriginalPrice = isNaN(parsedOriginalPrice) ? (finalPrice ? finalPrice * 1.2 : 0) : parsedOriginalPrice;
 
-      const newProduct = {
+      // Calculate expiry (2 months from now)
+      const expiryDate = new Date();
+      expiryDate.setMonth(expiryDate.getMonth() + 2);
+
+      const productData = {
         title: title,
         price: finalPrice,
         originalPrice: finalOriginalPrice,
@@ -170,32 +196,40 @@ export default function AdminPanel() {
         dealType: dealType,
         isFlashDeal: isFlashDeal || dealType === 'loot',
         badgeTag: badgeTag || (dealType === 'loot' ? "LOOT" : dealType === 'coupon' ? "COUPON" : ""),
-        addedBy: auth.currentUser?.email || "admin_user",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
+        expireAt: Timestamp.fromDate(expiryDate)
       };
 
-      const docId = generateId();
-      await setDoc(doc(db, 'products', docId), newProduct);
-      console.log("[Admin] Firestore save success:", docId);
+      if (editingProduct?.id) {
+        await updateDoc(doc(db, 'products', editingProduct.id), productData);
+      } else {
+        const newProduct = {
+          ...productData,
+          addedBy: auth.currentUser?.email || "admin_user",
+          createdAt: serverTimestamp(),
+        };
+        const docId = generateId();
+        await setDoc(doc(db, 'products', docId), newProduct);
+      }
 
       setSuccess(true);
-      setLoadingStatus('');
-      setUrl('');
-      setPrice('');
-      setOriginalPrice('');
-      setDescription('');
-      setImageFile(null);
-      setBadgeTag('');
-      setIsFlashDeal(false);
-      setDealType('loot');
+      if (!editingProduct) {
+        setUrl('');
+        setPrice('');
+        setOriginalPrice('');
+        setDescription('');
+        setImageFile(null);
+        setBadgeTag('');
+        setIsFlashDeal(false);
+        setDealType('loot');
+      }
       
-      // Auto-hide success message after 5 seconds
+      if (onSuccess) onSuccess();
       setTimeout(() => setSuccess(false), 5000);
 
     } catch (err: any) {
       console.error("[Admin] Process Failed:", err);
-      setError(err.message || 'An error occurred while posting the deal.');
+      setError(err.message || 'An error occurred.');
     } finally {
       setLoading(false);
       setLoadingStatus('');
@@ -206,27 +240,37 @@ export default function AdminPanel() {
     <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100 max-w-2xl mx-auto mb-12">
       <div className="flex items-start justify-between mb-2">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Plus className="w-6 h-6 text-orange-500" />
-          Add New Deal
+          {editingProduct ? <Save className="w-6 h-6 text-orange-500" /> : <Plus className="w-6 h-6 text-orange-500" />}
+          {editingProduct ? 'Edit Deal' : 'Add New Deal'}
         </h2>
-        <button 
-          onClick={handleMigrate}
-          disabled={migrating}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-orange-50 text-gray-500 hover:text-orange-600 rounded-xl text-xs font-bold transition-all border border-gray-100 hover:border-orange-100"
-          title="Fix old products that aren't showing up"
-        >
-          {migrating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Database className="w-3 h-3" />}
-          {migrating ? 'Repairing...' : 'Repair Database'}
-        </button>
+        <div className="flex gap-2">
+          {editingProduct && onCancel && (
+            <button 
+              onClick={onCancel}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-xl text-xs font-bold transition-all border border-gray-100"
+            >
+              <X className="w-3 h-3" /> Cancel
+            </button>
+          )}
+          <button 
+            onClick={handleMigrate}
+            disabled={migrating}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-orange-50 text-gray-500 hover:text-orange-600 rounded-xl text-xs font-bold transition-all border border-gray-100 hover:border-orange-100"
+            title="Fix old products that aren't showing up"
+          >
+            {migrating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Database className="w-3 h-3" />}
+            {migrating ? 'Repairing...' : 'Repair Database'}
+          </button>
+        </div>
       </div>
       <p className="text-sm text-gray-500 mb-8">
-        Add products via link or upload manually. All deals are live instantly.
+        {editingProduct ? `Editing: ${editingProduct.title}` : 'Add products via link or upload manually. All deals are live instantly.'}
       </p>
 
       {error && <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-2xl text-sm border border-red-100">{error}</div>}
-      {success && <div className="mb-6 p-4 bg-orange-50 text-orange-700 rounded-2xl text-sm border border-orange-100 font-bold">Deal added successfully!</div>}
+      {success && <div className="mb-6 p-4 bg-orange-50 text-orange-700 rounded-2xl text-sm border border-orange-100 font-bold">{editingProduct ? 'Deal updated successfully!' : 'Deal added successfully!'}</div>}
 
-      <form onSubmit={handleAddProduct} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
@@ -365,8 +409,8 @@ export default function AdminPanel() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Plus className="w-5 h-5" />
-              <span>Add Deal to OfferBazar</span>
+              {editingProduct ? <Save className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+              <span>{editingProduct ? 'Update Deal on OfferBazar' : 'Add Deal to OfferBazar'}</span>
             </div>
           )}
         </button>

@@ -13,4 +13,5 @@ export interface Product {
     addedBy: string;
     createdAt: any;
     updatedAt: any;
+    expireAt: any;
 }
