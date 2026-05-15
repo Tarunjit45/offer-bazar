@@ -23,6 +23,25 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
       });
       setProducts(data);
       setLoading(false);
+
+      // Handle deep linking/sharing (?deal=ID)
+      const urlParams = new URLSearchParams(window.location.search);
+      const dealId = urlParams.get('deal');
+      if (dealId && data.length > 0) {
+        const product = data.find(p => p.id === dealId);
+        if (product) {
+          // If the deal is in a different segment, we might need to switch (optional enhancement)
+          // For now, let's just wait for render and scroll
+          setTimeout(() => {
+            const element = document.getElementById(`product-${dealId}`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              element.classList.add('ring-4', 'ring-orange-500', 'ring-offset-4');
+              setTimeout(() => element.classList.remove('ring-4', 'ring-orange-500', 'ring-offset-4'), 3000);
+            }
+          }, 500);
+        }
+      }
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, 'products');
       setLoading(false);
@@ -192,7 +211,7 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
                   <div className="relative group">
                     <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-6 px-4 sm:px-0 no-scrollbar scroll-smooth">
                       {categoryProducts.map(product => (
-                        <div key={product.id} className="flex-shrink-0 w-[140px] sm:w-[180px]">
+                        <div key={product.id} id={`product-${product.id}`} className="flex-shrink-0 w-[140px] sm:w-[180px] scroll-mt-24 transition-all duration-500 rounded-2xl">
                           <ProductCard 
                             product={product} 
                             isAdmin={isAdmin} 

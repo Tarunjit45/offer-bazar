@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Trash2, Edit2 } from 'lucide-react';
+import { ExternalLink, Trash2, Edit2, Share2 } from 'lucide-react';
 import type { Product } from '../types';
 
 export default function ProductCard({ product, isAdmin, onEdit, onDelete }: { product: Product; key?: React.Key; isAdmin?: boolean; onEdit?: (product: Product) => void; onDelete?: (id: string) => void }) {
@@ -11,6 +11,34 @@ export default function ProductCard({ product, isAdmin, onEdit, onDelete }: { pr
 
   const isLoot = product.isFlashDeal || product.price < 500;
   const tag = product.badgeTag || (isLoot ? "LOOT DEAL" : "");
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const shareData = {
+      title: product.title,
+      text: `🔥 Checkout this loot deal on OfferBazar!\n\n${product.title}\n\n🛒 Claim here: `,
+      url: `${window.location.origin}${window.location.pathname}?deal=${product.id}`,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Error sharing:', err);
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(`${shareData.text}${shareData.url}`);
+        alert('Deal link copied to clipboard!');
+      } catch (err) {
+        console.error('Error copying to clipboard:', err);
+      }
+    }
+  };
 
   return (
     <a 
@@ -109,7 +137,17 @@ export default function ProductCard({ product, isAdmin, onEdit, onDelete }: { pr
                 </>
               )}
             </div>
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+            
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={handleShare}
+                className="p-1.5 rounded-lg text-orange-500 hover:bg-orange-50 transition-colors"
+                title="Share Deal"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+            </div>
         </div>
       </div>
     </a>
