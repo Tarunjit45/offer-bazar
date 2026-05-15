@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import AdminPanel from './components/AdminPanel';
+import React, { useState, Suspense, lazy } from 'react';
+const AdminPanel = lazy(() => import('./components/AdminPanel'));
 import Catalog from './components/Catalog';
-import { Tag, LogIn, LogOut, Settings, X } from 'lucide-react';
+import { Tag, LogIn, LogOut, Settings, X, Loader2 } from 'lucide-react';
 
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -148,11 +148,17 @@ export default function App() {
 
       <main className="px-4 sm:px-6 lg:px-8 py-8">
         {(isAdmin && showAdmin) && (
-           <AdminPanel 
-             editingProduct={editingProduct} 
-             onCancel={() => {setEditingProduct(null); setShowAdmin(false);}} 
-             onSuccess={() => {setEditingProduct(null);}}
-           />
+           <Suspense fallback={
+             <div className="flex items-center justify-center p-20">
+               <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+             </div>
+           }>
+             <AdminPanel 
+               editingProduct={editingProduct} 
+               onCancel={() => {setEditingProduct(null); setShowAdmin(false);}} 
+               onSuccess={() => {setEditingProduct(null);}}
+             />
+           </Suspense>
         )}
         
         <Catalog isAdmin={isAdmin} onEdit={startEditing} />
