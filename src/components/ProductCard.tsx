@@ -2,7 +2,7 @@ import React from 'react';
 import { ExternalLink, Trash2, Edit2, Share2 } from 'lucide-react';
 import type { Product } from '../types';
 
-export default function ProductCard({ product, isAdmin, onEdit, onDelete }: { product: Product; key?: React.Key; isAdmin?: boolean; onEdit?: (product: Product) => void; onDelete?: (id: string) => void }) {
+const ProductCard = React.memo(({ product, isAdmin, onEdit, onDelete }: { product: Product; key?: React.Key; isAdmin?: boolean; onEdit?: (product: Product) => void; onDelete?: (id: string) => void }) => {
   const imageUrl = product.imageUrl || "/logo.jpeg";
 // ... existing logic ...
   const discount = product.originalPrice && product.originalPrice > product.price
@@ -64,6 +64,7 @@ export default function ProductCard({ product, isAdmin, onEdit, onDelete }: { pr
                 }}
                 className="bg-white/95 backdrop-blur-md p-1 rounded-full text-blue-500 border border-blue-100 hover:bg-blue-50 hover:text-blue-700 transition-all shadow-sm"
                 title="Edit Deal"
+                aria-label="Edit this deal"
               >
                 <Edit2 className="w-3 h-3" />
               </button>
@@ -76,6 +77,7 @@ export default function ProductCard({ product, isAdmin, onEdit, onDelete }: { pr
                 }}
                 className="bg-white/95 backdrop-blur-md p-1 rounded-full text-red-500 border border-red-100 hover:bg-red-50 hover:text-red-700 transition-all shadow-sm"
                 title="Delete Deal"
+                aria-label="Delete this deal"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
@@ -143,6 +145,7 @@ export default function ProductCard({ product, isAdmin, onEdit, onDelete }: { pr
                 onClick={handleShare}
                 className="p-1.5 rounded-lg text-orange-500 hover:bg-orange-50 transition-colors"
                 title="Share Deal"
+                aria-label="Share this deal"
               >
                 <Share2 className="w-3.5 h-3.5" />
               </button>
@@ -152,4 +155,6 @@ export default function ProductCard({ product, isAdmin, onEdit, onDelete }: { pr
       </div>
     </a>
   );
-}
+});
+
+export default ProductCard;
