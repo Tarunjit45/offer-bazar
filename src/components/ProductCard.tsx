@@ -97,19 +97,6 @@ const ProductCard = React.memo(({ product, isAdmin, onEdit, onDelete }: { produc
       onClick={handleBuyClick}
       className={`group block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative ${product.isFlashDeal ? 'ring-1 ring-orange-500/30' : ''}`}
     >
-      {isAdmin && (
-        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 flex items-center gap-2 z-30 bg-black/85 backdrop-blur-md px-2 py-1 rounded-full text-[8px] font-bold text-white border border-white/20 whitespace-nowrap shadow-xl">
-          <div className="flex items-center gap-1 text-blue-400">
-            <Eye className="w-2.5 h-2.5" />
-            {product.views || 0} <span className="opacity-40 font-normal">Real</span>
-          </div>
-          <div className="w-[1px] h-2 bg-white/20"></div>
-          <div className="flex items-center gap-1 text-green-400">
-            <MousePointer2 className="w-2.5 h-2.5" />
-            {product.clicks || 0} <span className="opacity-40 font-normal">Clicks</span>
-          </div>
-        </div>
-      )}
 
       {tag && (
         <div className={`absolute top-1.5 left-1.5 text-[7px] font-black px-1.5 py-0.5 rounded-md z-20 shadow-sm tracking-tighter ${product.isFlashDeal ? 'bg-red-600 text-white animate-pulse' : 'bg-orange-500 text-white'}`}>
@@ -215,7 +202,6 @@ const ProductCard = React.memo(({ product, isAdmin, onEdit, onDelete }: { produc
             >
               <Share2 className="w-3.5 h-3.5" />
             </button>
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
           </div>
         </div>
       </div>
