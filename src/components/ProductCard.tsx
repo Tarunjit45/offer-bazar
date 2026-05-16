@@ -1,130 +1,139 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ExternalLink, Trash2, Edit2, Share2, Eye, MousePointer2 } from 'lucide-react';
+import React, { useEffect, useRef, memo } from 'react';
+import { ExternalLink, Trash2, Edit2, Share2, ShoppingCart } from 'lucide-react';
 import { doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Product } from '../types';
 
-const ProductCard = React.memo(({ product, isAdmin, onEdit, onDelete }: { product: Product; key?: React.Key; isAdmin?: boolean; onEdit?: (product: Product) => void; onDelete?: (id: string) => void }) => {
+interface ProductCardProps {
+  product: Product;
+  isAdmin?: boolean;
+  onEdit?: (product: Product) => void;
+  onDelete?: (id: string) => Promise<void>;
+  onClick: (product: Product) => void;
+}
+
+const ProductCard: React.FC<ProductCardProps> = memo(({ 
+  product, 
+  isAdmin, 
+  onEdit, 
+  onDelete,
+  onClick 
+}) => {
   const imageUrl = product.imageUrl || "/logo.jpeg";
   const isLoot = product.isFlashDeal || product.price < 500;
   const tag = product.badgeTag || (isLoot ? "LOOT DEAL" : "");
-  
+
   const discount = product.originalPrice && product.originalPrice > product.price
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
   const hasTracked = useRef(false);
-  const [liveViewers] = useState(() => Math.floor(Math.random() * 25) + 8);
 
   useEffect(() => {
     if (product.id && !isAdmin && !hasTracked.current) {
       hasTracked.current = true;
       const docRef = doc(db, 'products', product.id);
-      updateDoc(docRef, { 
-        views: increment(1) 
-      }).catch(() => {});
+      updateDoc(docRef, {
+        views: increment(1)
+      }).catch(() => { });
     }
   }, [product.id, isAdmin]);
 
-  const handleBuyClick = () => {
+  const handleBuyClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Avoid modal opening
     if (product.id && !isAdmin) {
       const docRef = doc(db, 'products', product.id);
-      updateDoc(docRef, { 
-        clicks: increment(1) 
-      }).catch(() => {});
+      updateDoc(docRef, {
+        clicks: increment(1)
+      }).catch(() => { });
     }
   };
 
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    const shareUrl = `${window.location.origin}${window.location.pathname}?deal=${product.id}`;
+    const shareText = `🔥 Checkout this loot deal on OfferBazar!\n\n${product.title}\n\nBuy Now👉🏻: `;
     
-    const shareData = {
+    const shareData: any = {
       title: product.title,
-      text: `🔥 Checkout this loot deal on OfferBazar!\n\n${product.title}\n\n🛒 Claim here: `,
-      url: `${window.location.origin}${window.location.pathname}?deal=${product.id}`,
+      text: shareText,
+      url: shareUrl,
     };
 
     if (navigator.share) {
       try {
+        if (product.imageUrl && navigator.canShare) {
+          try {
+            const blobResponse = await fetch(product.imageUrl).catch(() => null);
+            if (blobResponse && blobResponse.ok) {
+              const blob = await blobResponse.blob();
+              const file = new File([blob], 'deal.jpg', { type: blob.type });
+              if (navigator.canShare({ files: [file] })) {
+                shareData.files = [file];
+              }
+            }
+          } catch (imgErr) {
+            console.warn('Could not include image in share', imgErr);
+          }
+        }
         await navigator.share(shareData);
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
-          console.error('Error sharing:', err);
+          copyToClipboard(shareText, shareUrl);
         }
       }
     } else {
-      try {
-        await navigator.clipboard.writeText(`${shareData.text}${shareData.url}`);
-        alert('Deal link copied to clipboard!');
-      } catch (err) {
-        console.error('Error copying to clipboard:', err);
-      }
+      copyToClipboard(shareText, shareUrl);
+    }
+  };
+
+  const copyToClipboard = async (text: string, url: string) => {
+    try {
+      await navigator.clipboard.writeText(`${text}${url}`);
+      alert('Deal link copied to clipboard!');
+    } catch (err) {
+      console.error('Error copying to clipboard:', err);
     }
   };
 
   return (
-    <a 
-      href={product.originalLink} 
-      target="_blank" 
-      rel="noopener noreferrer"
-      onClick={handleBuyClick}
-      className={`group block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative ${product.isFlashDeal ? 'ring-1 ring-orange-500/30' : ''}`}
+    <div
+      onClick={() => onClick(product)}
+      className={`group block bg-white rounded-3xl shadow-sm border border-orange-50/50 overflow-hidden hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 transform hover:-translate-y-2 relative cursor-pointer ${product.isFlashDeal ? 'ring-2 ring-orange-500/10' : ''}`}
     >
-      {isAdmin && (
-        <div className="absolute top-1.5 left-1/2 -translate-x-1/2 flex items-center gap-2 z-30 bg-black/85 backdrop-blur-md px-2 py-1 rounded-full text-[8px] font-bold text-white border border-white/20 whitespace-nowrap shadow-xl">
-           <div className="flex items-center gap-1 text-blue-400">
-             <Eye className="w-2.5 h-2.5" />
-             {product.views || 0} <span className="opacity-40 font-normal">Real</span>
-           </div>
-           <div className="w-[1px] h-2 bg-white/20"></div>
-           <div className="flex items-center gap-1 text-green-400">
-             <MousePointer2 className="w-2.5 h-2.5" />
-             {product.clicks || 0} <span className="opacity-40 font-normal">Clicks</span>
-           </div>
+      {tag && (
+        <div className={`absolute top-3 left-3 text-[8px] font-black px-2 py-1 rounded-lg z-20 shadow-sm tracking-tight uppercase ${product.isFlashDeal ? 'bg-red-500 text-white animate-pulse' : 'bg-orange-500 text-white'}`}>
+          {tag}
         </div>
       )}
 
-      {/* Public FOMO Badge (Demo Data) */}
-      {!isAdmin && (
-        <div className="absolute top-1.5 right-1.5 z-20 flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm border border-orange-50 animate-pulse">
-           <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-           <span className="text-[7px] font-black text-gray-800 uppercase tracking-tighter">{liveViewers} viewing now</span>
-        </div>
-      )}
-      {tag && (
-        <div className={`absolute top-1.5 left-1.5 text-[7px] font-black px-1.5 py-0.5 rounded-md z-20 shadow-sm tracking-tighter ${product.isFlashDeal ? 'bg-red-600 text-white animate-pulse' : 'bg-orange-500 text-white'}`}>
-          {tag.toUpperCase()}
-        </div>
-      )}
-      
-      <div className="absolute top-1.5 right-1.5 flex items-center gap-1 z-30">
+      <div className="absolute top-3 right-3 flex items-center gap-1 z-30">
         {isAdmin && (
           <div className="flex items-center gap-1">
             {onEdit && (
-              <button 
+              <button
                 onClick={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   onEdit(product);
                 }}
-                className="bg-white/95 backdrop-blur-md p-1 rounded-full text-blue-500 border border-blue-100 hover:bg-blue-50 hover:text-blue-700 transition-all shadow-sm"
-                title="Edit Deal"
-                aria-label="Edit this deal"
+                className="bg-white/95 backdrop-blur-md p-2 rounded-xl text-blue-500 border border-blue-50 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
               >
-                <Edit2 className="w-3 h-3" />
+                <Edit2 className="w-4 h-4" />
               </button>
             )}
             {onDelete && (
-              <button 
+              <button
                 onClick={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   if (product.id) onDelete(product.id);
                 }}
-                className="bg-white/95 backdrop-blur-md p-1 rounded-full text-red-500 border border-red-100 hover:bg-red-50 hover:text-red-700 transition-all shadow-sm"
-                title="Delete Deal"
-                aria-label="Delete this deal"
+                className="bg-white/95 backdrop-blur-md p-2 rounded-xl text-red-500 border border-red-50 hover:bg-red-500 hover:text-white transition-all shadow-sm"
               >
-                <Trash2 className="w-3 h-3" />
+                <Trash2 className="w-4 h-4" />
               </button>
             )}
           </div>
@@ -132,76 +141,85 @@ const ProductCard = React.memo(({ product, isAdmin, onEdit, onDelete }: { produc
       </div>
 
 
-      <div className="relative aspect-square overflow-hidden bg-white flex items-center justify-center p-2">
-        <img 
-          src={imageUrl} 
+      <div className="relative aspect-square overflow-hidden bg-gray-50 flex items-center justify-center p-4">
+        <img
+          src={imageUrl}
           alt={product.title}
           loading="lazy"
           decoding="async"
-          className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-500 ease-out"
+          className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700"
           onError={(e) => {
             (e.target as HTMLImageElement).src = "/logo.jpeg";
           }}
         />
-        <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/10 transition-colors duration-300 flex items-center justify-center">
-          <span className="bg-orange-500 text-white text-[8px] font-black px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
-            BUY NOW
-          </span>
+        <div className="absolute inset-0 bg-gradient-to-t from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+          <div className="bg-white/95 backdrop-blur-md text-orange-600 text-[10px] font-black px-4 py-2 rounded-2xl shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 border border-orange-50">
+            VIEW DETAILS
+          </div>
         </div>
         {discount > 0 && (
-           <div className="absolute bottom-1.5 left-1.5 bg-red-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded shadow-sm">
-             {discount}% OFF
-           </div>
+          <div className="absolute bottom-3 left-3 bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-lg">
+            {discount}% OFF
+          </div>
         )}
       </div>
-      
-      <div className="p-2 pt-0">
-        <div className="flex items-center gap-1 mb-1">
-          <span className="text-[7px] font-black text-orange-600 uppercase tracking-tighter bg-orange-50 px-1 rounded">
+
+      <div className="p-4 pt-1">
+        <div className="flex items-center gap-1 mb-2">
+          <span className="text-[8px] font-black text-orange-600 uppercase tracking-widest bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100">
             {product.category}
           </span>
-          <div className="flex-1 h-[1px] bg-gray-50"></div>
         </div>
-        
-        <h3 className="font-bold text-gray-800 leading-[1.2] line-clamp-2 group-hover:text-orange-600 transition-colors text-[10px] mb-1">
+
+        <h3 className="font-black text-gray-900 leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors text-xs mb-3 tracking-tight">
           {product.title}
         </h3>
-        
-        <div className="flex items-center justify-between gap-1 mt-auto">
-            <div className="flex items-baseline gap-1">
+
+        <div className="flex items-center justify-between gap-2 mt-auto">
+          <div className="flex flex-col">
+            <div className="flex items-baseline gap-1.5">
               {product.dealType === 'coupon' && product.price === 0 ? (
-                <span className="text-[10px] font-black text-blue-600 uppercase">
+                <span className="text-sm font-black text-blue-600 uppercase">
                   FREE
                 </span>
               ) : (
                 <>
-                  <span className="text-sm font-black text-gray-900 leading-none">
+                  <span className="text-base font-black text-gray-900 tracking-tighter">
                     ₹{product.price.toLocaleString()}
                   </span>
                   {product.originalPrice && product.originalPrice > product.price && (
-                    <span className="text-[8px] text-gray-500 line-through font-bold">
+                    <span className="text-[10px] text-gray-400 line-through font-bold">
                       ₹{product.originalPrice.toLocaleString()}
                     </span>
                   )}
                 </>
               )}
             </div>
-            
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={handleShare}
-                className="p-1.5 rounded-lg text-orange-500 hover:bg-orange-50 transition-colors"
-                title="Share Deal"
-                aria-label="Share this deal"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-              </button>
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleShare}
+              className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 hover:text-orange-500 transition-all"
+              title="Share Deal"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+            <a
+              href={product.originalLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleBuyClick}
+              className="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-xl shadow-lg shadow-orange-500/20 active:scale-90 transition-all"
+            >
+              <ShoppingCart className="w-4 h-4" />
+            </a>
+          </div>
         </div>
       </div>
-    </a>
+    </div>
   );
 });
 
 export default ProductCard;
+
