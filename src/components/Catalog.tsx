@@ -107,15 +107,61 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
       </div>
 
       {/* 2. SEARCH BAR */}
-      <div className="relative mb-8 group max-w-2xl mx-auto w-full">
-        <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={`Search for products & loot deals...`}
-          className="w-full pl-14 pr-6 py-4 bg-white border border-gray-100 rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none font-bold text-gray-900 transition-all text-base shadow-sm"
-        />
+      <div className="relative mb-8 group max-w-2xl mx-auto w-full z-[100]">
+        <div className="relative">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={`Search for mobile, electronics, loot deals...`}
+            className="w-full pl-14 pr-6 py-4 bg-white border border-gray-100 rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none font-bold text-gray-900 transition-all text-base shadow-sm"
+          />
+        </div>
+
+        {/* Google-style Recommendations Dropdown */}
+        {searchQuery.trim().length > 1 && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden animate-in slide-in-from-top-2 duration-300 z-[110]">
+            <div className="p-3 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest pl-2">Recommended Deals</span>
+              <span className="text-[9px] font-black text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
+                {products.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase())).length} found
+              </span>
+            </div>
+            <div className="max-h-[350px] overflow-y-auto no-scrollbar">
+              {products
+                .filter(p => (p.title + ' ' + (p.category || '')).toLowerCase().includes(searchQuery.toLowerCase()))
+                .slice(0, 8) // Show top 8 recommendations
+                .map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => {
+                      setSelectedProduct(product);
+                      setSearchQuery(''); // Clear search after selection
+                    }}
+                    className="w-full flex items-center gap-4 p-3 hover:bg-orange-50 transition-colors border-b border-gray-50 last:border-0 group"
+                  >
+                    <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex-shrink-0 border border-gray-50 p-1 group-hover:scale-105 transition-transform">
+                      <img src={product.imageUrl} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h4 className="text-[11px] font-bold text-gray-900 line-clamp-1 group-hover:text-orange-600 transition-colors">{product.title}</h4>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-orange-600 tracking-tighter">₹{product.price.toLocaleString()}</span>
+                        <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest">{product.category}</span>
+                      </div>
+                    </div>
+                    <Zap className="w-3 h-3 text-gray-200 group-hover:text-orange-500" />
+                  </button>
+                ))}
+              {products.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                <div className="p-10 text-center">
+                  <p className="text-sm font-bold text-gray-400 italic">No recommendations for "{searchQuery}"</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 3. DEAL ZONE SELECTOR (Row) */}
