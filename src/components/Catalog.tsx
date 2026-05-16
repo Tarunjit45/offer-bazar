@@ -4,6 +4,7 @@ import { db } from '../lib/firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-error';
 import type { Product } from '../types';
 import ProductCard from './ProductCard';
+import ProductDetailModal from './ProductDetailModal';
 import { Search, Tag, Loader2, Zap } from 'lucide-react';
 
 export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit?: (product: Product) => void }) {
@@ -12,6 +13,7 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeSegment, setActiveSegment] = useState<'loot' | 'coupon' | 'best_offer'>('loot');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 // ... existing useEffect ...
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
@@ -57,14 +59,18 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
   ];
 
   const filteredProducts = products.filter(p => {
-    // Default to 'best_offer' if dealType is missing for legacy compatibility
+    // Default to 'best_offer' if dealType is missing
     const productSegment = p.dealType || 'best_offer';
     const matchesSegment = productSegment === activeSegment;
     
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    const searchLow = searchQuery.toLowerCase().trim();
+    const titleMatch = p.title.toLowerCase().includes(searchLow);
+    const categoryMatch = (p.category || '').toLowerCase().includes(searchLow);
+    const matchesSearch = !searchLow || titleMatch || categoryMatch;
+    
+    // If searching, ignore the category filter chips for better results
+    const matchesCategory = searchQuery.trim() !== '' || selectedCategory === 'All' || p.category === selectedCategory;
 
-    // Filter out expired products (if expireAt exists)
     const isExpired = p.expireAt && p.expireAt.toDate() <= new Date();
 
     return matchesSegment && matchesSearch && matchesCategory && !isExpired;
@@ -183,6 +189,7 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
                             product={product} 
                             isAdmin={isAdmin} 
                             onEdit={onEdit}
+                            onClick={(p) => setSelectedProduct(p)}
                             onDelete={async (id) => {
                               if (window.confirm('Are you sure you want to delete this deal?')) {
                                 try {
@@ -210,6 +217,25 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
           </div>
         )}
       </section>
+
+      {/* Product Detail Modal */}
+      {selectedProduct && (
+        <ProductDetailModal 
+          product={selectedProduct} 
+          onClose={() => setSelectedProduct(null)} 
+          onShare={() => {
+             // We can reuse the share logic from ProductCard or implement a simpler one here
+             const shareUrl = `${window.location.origin}${window.location.pathname}?deal=${selectedProduct.id}`;
+             const shareText = `🔥 Checkout this loot deal on OfferBazar!\n\n${selectedProduct.title}\n\nBuy Now👉🏻: `;
+             if (navigator.share) {
+               navigator.share({ title: selectedProduct.title, text: shareText, url: shareUrl }).catch(() => {});
+             } else {
+               navigator.clipboard.writeText(`${shareText}${shareUrl}`);
+               alert('Link copied!');
+             }
+          }}
+        />
+      )}
 
       {/* SEO & Geo-SEO Section */}
       <section className="mt-32 px-0 max-w-6xl mx-auto">
