@@ -66,7 +66,10 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
       try {
         if (product.imageUrl && navigator.canShare) {
           try {
-            const blobResponse = await fetch(product.imageUrl).catch(() => null);
+            // Use a reliable CORS proxy to ensure we can fetch the image blob
+            const proxiedUrl = `https://corsproxy.io/?url=${encodeURIComponent(product.imageUrl)}`;
+            const blobResponse = await fetch(proxiedUrl).catch(() => null);
+            
             if (blobResponse && blobResponse.ok) {
               const blob = await blobResponse.blob();
               const file = new File([blob], 'deal.jpg', { type: blob.type });

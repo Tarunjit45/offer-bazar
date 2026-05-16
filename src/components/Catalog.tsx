@@ -145,11 +145,14 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
                       <img src={product.imageUrl} alt="" className="w-full h-full object-contain mix-blend-multiply" />
                     </div>
                     <div className="flex-1 text-left">
-                      <h4 className="text-[11px] font-bold text-gray-900 line-clamp-1 group-hover:text-orange-600 transition-colors">{product.title}</h4>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black text-orange-600 tracking-tighter">₹{product.price.toLocaleString()}</span>
-                        <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest">{product.category}</span>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-red-600 text-white border border-red-700 shadow-sm">
+                          {product.dealType?.replace('_', ' ') || 'Deal'}
+                        </span>
+                        <span className="text-[7px] font-black text-gray-300 uppercase tracking-widest">{product.category}</span>
                       </div>
+                      <h4 className="text-[11px] font-bold text-gray-900 line-clamp-1 group-hover:text-orange-600 transition-colors uppercase tracking-tight">{product.title}</h4>
+                      <span className="text-[10px] font-black text-orange-600 tracking-tighter">₹{product.price.toLocaleString()}</span>
                     </div>
                     <Zap className="w-3 h-3 text-gray-200 group-hover:text-orange-500" />
                   </button>
