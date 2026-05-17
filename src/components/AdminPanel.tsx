@@ -31,6 +31,7 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
     cleanupOldProducts();
   }, []);
   const [url, setUrl] = useState(editingProduct?.originalLink || '');
+  const [title, setTitle] = useState(editingProduct?.title || '');
   const [category, setCategory] = useState(editingProduct?.category || 'Mobile Phones');
   const [price, setPrice] = useState(editingProduct?.price.toString() || '');
   const [originalPrice, setOriginalPrice] = useState(editingProduct?.originalPrice?.toString() || '');
@@ -49,6 +50,7 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
   React.useEffect(() => {
     if (editingProduct) {
       setUrl(editingProduct.originalLink);
+      setTitle(editingProduct.title);
       setCategory(editingProduct.category);
       setPrice(editingProduct.price.toString());
       setOriginalPrice(editingProduct.originalPrice?.toString() || '');
@@ -106,7 +108,7 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
 
     try {
       let finalImageUrl = editingProduct?.imageUrl || "";
-      let title = editingProduct?.title || "Unknown Product";
+      let scrapedTitle = editingProduct?.title || "Unknown Product";
       let scrapedPrice = 0;
       let originalLink = url;
 
@@ -122,12 +124,14 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
 
           if (response.ok) {
             const data = await response.json();
-            title = data.title || title;
+            scrapedTitle = data.title || scrapedTitle;
             scrapedPrice = data.price || 0;
             finalImageUrl = data.imageUrl || finalImageUrl;
             originalLink = data.originalLink || url;
             
             if (!price) setPrice(scrapedPrice.toString());
+            // Only update current title if it's empty to avoid overwriting manual edits
+            if (!title) setTitle(data.title || "");
           }
         } catch (fetchErr: any) {
           console.error("[Admin] Scrape error:", fetchErr);
@@ -186,7 +190,7 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
       expiryDate.setMonth(expiryDate.getMonth() + 2);
 
       const productData = {
-        title: title,
+        title: title || scrapedTitle,
         price: finalPrice,
         originalPrice: finalOriginalPrice,
         imageUrl: finalImageUrl,
@@ -215,6 +219,7 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
       setSuccess(true);
       if (!editingProduct) {
         setUrl('');
+        setTitle('');
         setPrice('');
         setOriginalPrice('');
         setDescription('');
@@ -271,6 +276,20 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
       {success && <div className="mb-6 p-4 bg-orange-50 text-orange-700 rounded-2xl text-sm border border-orange-100 font-bold">{editingProduct ? 'Deal updated successfully!' : 'Deal added successfully!'}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+            <FileText className="w-3 h-3" /> Deal Title (Product Name)
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all font-bold text-gray-900"
+            placeholder="Enter catchy product title..."
+            required
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
