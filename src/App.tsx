@@ -104,7 +104,7 @@ export default function App() {
 
       {/* Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-orange-900/10 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-orange-900/20 backdrop-blur-md z-[200] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden border border-orange-100 animate-in fade-in zoom-in-95 duration-300">
             <div className="flex justify-between items-center p-6 border-b border-orange-50">
                <h3 className="font-black text-xl flex items-center gap-2 text-gray-900 tracking-tighter">

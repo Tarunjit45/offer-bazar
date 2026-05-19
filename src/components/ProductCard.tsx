@@ -54,33 +54,32 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
     e.stopPropagation();
 
     const shareUrl = `${window.location.origin}${window.location.pathname}?deal=${product.id}`;
-    const shareText = `🔥 Checkout this loot deal on OfferBazar!\n\n${product.title}\n\nBuy Now👉🏻: `;
+    const shareText = `🔥 LOOT DEAL: ${product.title}\n\nPrice: ₹${product.price.toLocaleString()}\n\nGrab it here: `;
     
-    const shareData: any = {
-      title: product.title,
-      text: shareText,
-      url: shareUrl,
-    };
-
     if (navigator.share) {
       try {
-        if (product.imageUrl && navigator.canShare) {
+        const shareData: any = {
+          title: 'OfferBazar Loot',
+          text: shareText,
+          url: shareUrl,
+        };
+
+        if (product.imageUrl) {
           try {
-            // Use a reliable CORS proxy to ensure we can fetch the image blob
-            const proxiedUrl = `https://corsproxy.io/?url=${encodeURIComponent(product.imageUrl)}`;
-            const blobResponse = await fetch(proxiedUrl).catch(() => null);
+            const proxiedUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(product.imageUrl)}`;
+            const response = await fetch(proxiedUrl);
+            const blob = await response.blob();
+            const file = new File([blob], 'deal-image.jpg', { type: 'image/jpeg' });
             
-            if (blobResponse && blobResponse.ok) {
-              const blob = await blobResponse.blob();
-              const file = new File([blob], 'deal.jpg', { type: blob.type });
-              if (navigator.canShare({ files: [file] })) {
-                shareData.files = [file];
-              }
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              shareData.files = [file];
+              // On many mobile browsers, sharing files + URL works better if fixed in this order
             }
-          } catch (imgErr) {
-            console.warn('Could not include image in share', imgErr);
+          } catch (e) {
+            console.warn("Image fetch failed, sharing text only", e);
           }
         }
+        
         await navigator.share(shareData);
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {

@@ -107,7 +107,7 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
       </div>
 
       {/* 2. SEARCH BAR */}
-      <div className="relative mb-8 group max-w-2xl mx-auto w-full z-[100]">
+      <div className="relative mb-8 group max-w-2xl mx-auto w-full z-30">
         <div className="relative">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
           <input
@@ -121,7 +121,7 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
 
         {/* Google-style Recommendations Dropdown */}
         {searchQuery.trim().length > 1 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden animate-in slide-in-from-top-2 duration-300 z-[110]">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden animate-in slide-in-from-top-2 duration-300 z-40">
             <div className="p-3 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
               <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest pl-2">Recommended Deals</span>
               <span className="text-[9px] font-black text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
@@ -272,12 +272,36 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
         <ProductDetailModal 
           product={selectedProduct} 
           onClose={() => setSelectedProduct(null)} 
-          onShare={() => {
-             // We can reuse the share logic from ProductCard or implement a simpler one here
+          onShare={async () => {
              const shareUrl = `${window.location.origin}${window.location.pathname}?deal=${selectedProduct.id}`;
-             const shareText = `🔥 Checkout this loot deal on OfferBazar!\n\n${selectedProduct.title}\n\nBuy Now👉🏻: `;
+             const shareText = `🔥 LOOT DEAL: ${selectedProduct.title}\n\nPrice: ₹${selectedProduct.price.toLocaleString()}\n\nGrab it here: `;
+             
              if (navigator.share) {
-               navigator.share({ title: selectedProduct.title, text: shareText, url: shareUrl }).catch(() => {});
+               try {
+                 const shareData: any = {
+                    title: 'OfferBazar Loot',
+                    text: shareText,
+                    url: shareUrl
+                 };
+
+                 if (selectedProduct.imageUrl) {
+                   try {
+                     const proxiedUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(selectedProduct.imageUrl)}`;
+                     const res = await fetch(proxiedUrl);
+                     const blob = await res.blob();
+                     const file = new File([blob], 'deal.jpg', { type: 'image/jpeg' });
+                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                       shareData.files = [file];
+                     }
+                   } catch (e) { console.warn("Image fetch failed", e); }
+                 }
+                 await navigator.share(shareData);
+               } catch (err) {
+                 if ((err as Error).name !== 'AbortError') {
+                   navigator.clipboard.writeText(`${shareText}${shareUrl}`);
+                   alert('Link copied!');
+                 }
+               }
              } else {
                navigator.clipboard.writeText(`${shareText}${shareUrl}`);
                alert('Link copied!');
