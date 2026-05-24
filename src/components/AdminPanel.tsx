@@ -2,12 +2,269 @@ import React, { useState, useEffect } from 'react';
 import { db, storage, auth } from '../lib/firebase';
 import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, deleteDoc, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
-import { Plus, Loader2, Image as ImageIcon, Link as LinkIcon, FileText, Database, Save, X, Trash } from 'lucide-react';
+import { Plus, Loader2, Image as ImageIcon, Link as LinkIcon, FileText, Database, Save, X, Trash, Zap, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
 import { generateId } from '../lib/utils';
 import { migrateLegacyProducts } from '../lib/migration';
 import type { Product } from '../types';
 
+// ============== AUTOPOST SECTION ==============
+function AutopostPanel() {
+  const [autoUrl, setAutoUrl] = useState('');
+  const [autoStatus, setAutoStatus] = useState<'idle' | 'scraping' | 'ai' | 'posting' | 'done' | 'error'>('idle');
+  const [autoError, setAutoError] = useState('');
+  const [preview, setPreview] = useState<any>(null);
+  const [originalPrice, setAutoOriginalPrice] = useState('');
+
+  const statusMessages: Record<string, string> = {
+    idle: '',
+    scraping: '🔍 Bot is visiting the product page...',
+    ai: '🤖 AI is refining title & description...',
+    posting: '📦 Saving deal to OfferBazar...',
+    done: '✅ Deal posted successfully!',
+    error: '',
+  };
+
+  const handleAutopost = async () => {
+    if (!autoUrl.trim()) { setAutoError('Please paste a product URL.'); return; }
+    setAutoError(''); setPreview(null);
+    setAutoStatus('scraping');
+    try {
+      const res = await fetch('/api/autopost', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: autoUrl.trim() }),
+      });
+      setAutoStatus('ai');
+      
+      // Safely parse the response body
+      const text = await res.text();
+      if (!text || !text.trim()) throw new Error('Server returned an empty response. The product page may have blocked the bot. Try a different link.');
+      
+      let data: any;
+      try { data = JSON.parse(text); } 
+      catch { throw new Error('Server response was not valid JSON: ' + text.slice(0, 100)); }
+      
+      if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+      
+      setPreview(data);
+      setAutoStatus('idle');
+    } catch (err: any) {
+      setAutoError(err.message);
+      setAutoStatus('error');
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!preview) return;
+    setAutoStatus('posting');
+    try {
+      const parsedOriginal = parseFloat(originalPrice);
+      let finalImageUrl = preview.imageUrl || "https://placehold.co/600x400/orange/white?text=OfferBazar+Deals";
+
+      // Replicate Manual Logic: Convert external image to Base64 to ensure it saves perfectly
+      if (preview.imageUrl && preview.imageUrl.startsWith('http')) {
+        try {
+          const imgRes = await fetch(preview.imageUrl);
+          const blob = await imgRes.blob();
+          finalImageUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
+        } catch (e) {
+          console.warn("[Autopost] Image conversion failed, using direct link:", e);
+        }
+      }
+
+      const expiryDate = new Date();
+      expiryDate.setMonth(expiryDate.getMonth() + 2);
+
+      // EXACT SAME LOGIC AS YOUR MANUAL handleSubmit
+      const productData = {
+        title: preview.title,
+        price: preview.price || 0,
+        originalPrice: isNaN(parsedOriginal) ? (preview.price ? preview.price * 1.3 : 0) : parsedOriginal,
+        imageUrl: finalImageUrl,
+        originalLink: preview.originalLink || "#",
+        category: preview.category || "Miscellaneous",
+        description: preview.description || "",
+        dealType: preview.dealType || "best_offer",
+        isFlashDeal: preview.dealType === 'loot',
+        badgeTag: preview.badgeTag || (preview.dealType === 'loot' ? "LOOT" : ""),
+        addedBy: auth.currentUser?.email || "admin_user",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        expireAt: Timestamp.fromDate(expiryDate)
+      };
+
+      const docId = generateId();
+      await setDoc(doc(db, 'products', docId), productData);
+
+      setAutoStatus('done');
+      setTimeout(() => { setAutoStatus('idle'); setPreview(null); setAutoUrl(''); setAutoOriginalPrice(''); }, 4000);
+    } catch (err: any) {
+      setAutoError(err.message);
+      setAutoStatus('error');
+    }
+  };
+
+  const isLoading = ['scraping', 'ai', 'posting'].includes(autoStatus);
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="bg-gradient-to-br from-purple-600 via-orange-500 to-pink-500 p-8 rounded-[2.5rem] text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.15),transparent_60%)]"></div>
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="font-black text-2xl tracking-tighter">AI Autopost Magic</h2>
+              <p className="text-white/70 text-xs font-bold uppercase tracking-widest">Powered by Gemini 1.5 Flash</p>
+            </div>
+          </div>
+          <p className="text-white/80 text-sm font-medium leading-relaxed max-w-lg">
+            Paste any affiliate product link. Our AI bot will automatically scrape the image, clean the title, write a description, detect the category, and post the deal — in seconds.
+          </p>
+        </div>
+      </div>
+
+      {/* URL Input */}
+      <div className="space-y-3">
+        <label className="block text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Affiliate / Product URL</label>
+        <div className="flex gap-3">
+          <input
+            type="url"
+            value={autoUrl}
+            onChange={e => { setAutoUrl(e.target.value); setAutoError(''); setPreview(null); setAutoStatus('idle'); }}
+            placeholder="https://www.amazon.in/dp/... or Flipkart, Meesho, etc."
+            className="flex-1 px-5 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none font-bold text-gray-900 transition-all text-sm"
+            disabled={isLoading}
+          />
+          <button
+            onClick={handleAutopost}
+            disabled={isLoading || !autoUrl.trim()}
+            className="flex items-center gap-3 px-7 py-4 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white rounded-2xl font-black transition-all shadow-xl shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+            {isLoading ? 'Working...' : 'AI Magic'}
+          </button>
+        </div>
+        {autoError && (
+          <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-700 text-sm font-bold">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            {autoError}
+          </div>
+        )}
+      </div>
+
+      {/* Status indicator */}
+      {isLoading && (
+        <div className="flex items-center gap-4 p-6 bg-purple-50 border border-purple-100 rounded-2xl">
+          <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />
+          </div>
+          <div>
+            <p className="font-black text-purple-900 text-sm">{statusMessages[autoStatus]}</p>
+            <p className="text-purple-500 text-xs font-medium mt-0.5">This takes 3–8 seconds. Please wait...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Done state */}
+      {autoStatus === 'done' && (
+        <div className="flex items-center gap-4 p-6 bg-green-50 border border-green-200 rounded-2xl">
+          <CheckCircle2 className="w-8 h-8 text-green-500 flex-shrink-0" />
+          <div>
+            <p className="font-black text-green-900 text-sm">🎉 Deal is now LIVE on OfferBazar!</p>
+            <p className="text-green-600 text-xs font-medium mt-0.5">Visitors can see it right now. Refreshing...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Card */}
+      {preview && autoStatus === 'idle' && (
+        <div className="border-2 border-dashed border-orange-200 bg-orange-50/30 rounded-[2.5rem] p-8 space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 bg-orange-100 rounded-xl flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4 text-orange-600" />
+            </div>
+            <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Preview — Review Before Posting</h3>
+          </div>
+
+          {/* Preview content */}
+          <div className="bg-white rounded-[2rem] p-6 flex flex-col sm:flex-row gap-6 shadow-sm border border-orange-100">
+            {preview.imageUrl && (
+              <div className="w-full sm:w-36 h-36 rounded-2xl bg-gray-50 flex items-center justify-center flex-shrink-0 overflow-hidden border border-gray-100 p-3">
+                <img src={preview.imageUrl} alt="" className="max-h-full object-contain mix-blend-multiply" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className="px-3 py-1 bg-orange-100 text-orange-700 text-[9px] font-black rounded-full uppercase tracking-widest">{preview.category}</span>
+                <span className={`px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-widest ${preview.dealType === 'loot' ? 'bg-red-100 text-red-700' : preview.dealType === 'coupon' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+                  {preview.dealType?.replace('_', ' ')}
+                </span>
+              </div>
+              <input
+                type="text"
+                value={preview.title}
+                onChange={e => setPreview({...preview, title: e.target.value})}
+                className="w-full font-black text-gray-900 text-sm bg-transparent border-b border-gray-100 focus:border-orange-400 outline-none pb-1 mb-3 tracking-tight"
+              />
+              <textarea
+                value={preview.description}
+                onChange={e => setPreview({...preview, description: e.target.value})}
+                rows={3}
+                className="w-full text-gray-500 text-xs bg-transparent border border-gray-100 focus:border-orange-300 outline-none rounded-xl p-2 resize-none"
+              />
+            </div>
+          </div>
+
+          {/* Price row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Deal Price (Auto-detected)</label>
+              <input
+                type="number"
+                value={preview.price}
+                onChange={e => setPreview({...preview, price: parseFloat(e.target.value) || 0})}
+                className="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-black text-gray-900 text-lg"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Original MRP (Enter manually)</label>
+              <input
+                type="number"
+                value={originalPrice}
+                onChange={e => setAutoOriginalPrice(e.target.value)}
+                placeholder="e.g. 5000"
+                className="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-bold"
+              />
+            </div>
+          </div>
+
+          {/* Publish button */}
+          <button
+            onClick={handlePublish}
+            className="w-full flex items-center justify-center gap-3 py-5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-[1.5rem] font-black text-lg transition-all shadow-2xl shadow-green-500/30 active:scale-98"
+          >
+            <Sparkles className="w-6 h-6" />
+            Publish Deal to OfferBazar Now!
+          </button>
+          <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">You can edit the title and description above before publishing</p>
+        </div>
+      )}
+    </div>
+  );
+}
+// ============== END AUTOPOST SECTION ==============
+
 export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { editingProduct?: Product | null; onCancel?: () => void; onSuccess?: () => void }) {
+  const [activeTab, setActiveTab] = useState<'manual' | 'autopost'>('manual');
+  
   // Auto-cleanup old products (older than 2 months)
   useEffect(() => {
     const cleanupOldProducts = async () => {
@@ -243,6 +500,28 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
 
   return (
     <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100 max-w-2xl mx-auto mb-12">
+      
+      {/* Tab Switcher */}
+      <div className="flex items-center gap-3 mb-8 p-2 bg-gray-50 rounded-2xl border border-gray-100">
+        <button
+          onClick={() => setActiveTab('manual')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'manual' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <Plus className="w-4 h-4" /> Manual Post
+        </button>
+        <button
+          onClick={() => setActiveTab('autopost')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'autopost' ? 'bg-gradient-to-r from-purple-500 to-orange-500 text-white shadow-lg shadow-purple-500/20' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <Sparkles className="w-4 h-4" /> AI Autopost ✨
+        </button>
+      </div>
+
+      {/* Autopost Tab */}
+      {activeTab === 'autopost' && <AutopostPanel />}
+
+      {/* Manual Tab */}
+      {activeTab === 'manual' && <>
       <div className="flex items-start justify-between mb-2">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           {editingProduct ? <Save className="w-6 h-6 text-orange-500" /> : <Plus className="w-6 h-6 text-orange-500" />}
@@ -434,6 +713,7 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
           )}
         </button>
       </form>
+      </>}
     </div>
   );
 }
