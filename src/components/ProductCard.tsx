@@ -103,15 +103,15 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
   return (
     <div
       onClick={() => onClick(product)}
-      className={`group block bg-white rounded-3xl shadow-sm border border-orange-50/50 overflow-hidden hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 transform hover:-translate-y-2 relative cursor-pointer ${product.isFlashDeal ? 'ring-2 ring-orange-500/10' : ''}`}
+      className={`group block bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-orange-50/50 overflow-hidden hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 transform hover:-translate-y-2 relative cursor-pointer ${product.isFlashDeal ? 'ring-2 ring-orange-500/10' : ''}`}
     >
       {tag && (
-        <div className={`absolute top-3 left-3 text-[8px] font-black px-2 py-1 rounded-lg z-20 shadow-sm tracking-tight uppercase ${product.isFlashDeal ? 'bg-red-500 text-white animate-pulse' : 'bg-orange-500 text-white'}`}>
+        <div className={`absolute top-2.5 left-2.5 text-[7px] sm:text-[8px] font-black px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg z-20 shadow-sm tracking-tight uppercase ${product.isFlashDeal ? 'bg-red-500 text-white animate-pulse' : 'bg-orange-500 text-white'}`}>
           {tag}
         </div>
       )}
 
-      <div className="absolute top-3 right-3 flex items-center gap-1 z-30">
+      <div className="absolute top-2.5 right-2.5 flex items-center gap-1 z-30">
         {isAdmin && (
           <div className="flex items-center gap-1">
             {onEdit && (
@@ -121,9 +121,9 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
                   e.stopPropagation();
                   onEdit(product);
                 }}
-                className="bg-white/95 backdrop-blur-md p-2 rounded-xl text-blue-500 border border-blue-50 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
+                className="bg-white/95 backdrop-blur-md p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-blue-500 border border-blue-50 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
               >
-                <Edit2 className="w-4 h-4" />
+                <Edit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             )}
             {onDelete && (
@@ -133,9 +133,9 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
                   e.stopPropagation();
                   if (product.id) onDelete(product.id);
                 }}
-                className="bg-white/95 backdrop-blur-md p-2 rounded-xl text-red-500 border border-red-50 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                className="bg-white/95 backdrop-blur-md p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-red-500 border border-red-50 hover:bg-red-500 hover:text-white transition-all shadow-sm"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             )}
           </div>
@@ -143,7 +143,7 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
       </div>
 
 
-      <div className="relative aspect-square overflow-hidden bg-gray-50 flex items-center justify-center p-4">
+      <div className="relative aspect-square overflow-hidden bg-gray-50 flex items-center justify-center p-3 sm:p-4">
         <img
           src={imageUrl}
           alt={product.title}
@@ -155,42 +155,42 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-          <div className="bg-white/95 backdrop-blur-md text-orange-600 text-[10px] font-black px-4 py-2 rounded-2xl shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 border border-orange-50">
+          <div className="bg-white/95 backdrop-blur-md text-orange-600 text-[9px] sm:text-[10px] font-black px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 border border-orange-50">
             VIEW DETAILS
           </div>
         </div>
         {discount > 0 && (
-          <div className="absolute bottom-3 left-3 bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-lg">
+          <div className="absolute bottom-2.5 left-2.5 bg-red-500 text-white text-[8px] sm:text-[10px] font-black px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg shadow-lg">
             {discount}% OFF
           </div>
         )}
       </div>
 
-      <div className="p-4 pt-1">
-        <div className="flex items-center gap-1 mb-2">
-          <span className="text-[8px] font-black text-orange-600 uppercase tracking-widest bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100">
+      <div className="p-3 sm:p-4 pt-1 sm:pt-1">
+        <div className="flex items-center gap-1 mb-1.5 sm:mb-2">
+          <span className="text-[7px] sm:text-[8px] font-black text-orange-600 uppercase tracking-widest bg-orange-50 px-1.5 py-0.5 rounded-full border border-orange-100">
             {product.category}
           </span>
         </div>
 
-        <h3 className="font-black text-gray-900 leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors text-xs mb-3 tracking-tight">
+        <h3 className="font-black text-gray-900 leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors text-[11px] sm:text-xs mb-2 sm:mb-3 tracking-tight">
           {product.title}
         </h3>
 
-        <div className="flex items-center justify-between gap-2 mt-auto">
-          <div className="flex flex-col">
-            <div className="flex items-baseline gap-1.5">
+        <div className="flex items-center justify-between gap-1 mt-auto">
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-baseline gap-1 flex-wrap">
               {product.dealType === 'coupon' && product.price === 0 ? (
-                <span className="text-sm font-black text-blue-600 uppercase">
+                <span className="text-xs sm:text-sm font-black text-blue-600 uppercase">
                   FREE
                 </span>
               ) : (
                 <>
-                  <span className="text-base font-black text-gray-900 tracking-tighter">
+                  <span className="text-sm xs:text-base font-black text-gray-900 tracking-tighter truncate">
                     ₹{product.price.toLocaleString()}
                   </span>
                   {product.originalPrice && product.originalPrice > product.price && (
-                    <span className="text-[10px] text-gray-400 line-through font-bold">
+                    <span className="text-[9px] sm:text-[10px] text-gray-400 line-through font-bold truncate">
                       ₹{product.originalPrice.toLocaleString()}
                     </span>
                   )}
@@ -199,22 +199,22 @@ const ProductCard: React.FC<ProductCardProps> = memo(({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={handleShare}
-              className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 hover:text-orange-500 transition-all"
+              className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-gray-400 hover:bg-gray-100 hover:text-orange-500 transition-all"
               title="Share Deal"
             >
-              <Share2 className="w-4 h-4" />
+              <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
             <a
               href={product.originalLink}
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleBuyClick}
-              className="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-xl shadow-lg shadow-orange-500/20 active:scale-90 transition-all"
+              className="bg-orange-500 hover:bg-orange-600 text-white p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-lg shadow-orange-500/20 active:scale-90 transition-all"
             >
-              <ShoppingCart className="w-4 h-4" />
+              <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </a>
           </div>
         </div>
