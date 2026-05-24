@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@layer base {
+  body {
+    @apply antialiased text-gray-900 bg-[#F8FAFC];
+    font-feature-settings: "cv02", "cv05", "cv11";
+  }
+}
+
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -8,4 +15,28 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
+  }
+  
+  .premium-shadow {
+    shadow-color: rgba(249, 115, 22, 0.1);
+    box-shadow: 0 20px 40px -15px var(--tw-shadow-color);
+  }
+
+  .text-glow-orange {
+    text-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+  }
+}
+
+/* Custom Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
