@@ -128,14 +128,14 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
   return (
     <div className="max-w-7xl mx-auto pb-20 px-4 sm:px-6 lg:px-8">
       {/* 1. TOP SOCIAL ROW */}
-      <div className="flex flex-col items-center gap-3 mt-6 sm:mt-10 mb-8 px-2">
+      <div className="flex flex-col items-center gap-2.5 mt-6 sm:mt-10 mb-8 px-2">
         <p className="text-[9px] font-black uppercase text-gray-500 tracking-[0.3em]">Join for instant Loot alerts</p>
-        <div className="flex w-full gap-3 max-w-lg">
+        <div className="flex w-full gap-2 sm:gap-3 max-w-lg">
           <a 
             href="https://t.me/offerbazaarofficial01" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0088cc] hover:bg-[#0077b3] text-white rounded-2xl font-black text-[11px] transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 sm:py-3 bg-[#0088cc] hover:bg-[#0077b3] text-white rounded-2xl font-black text-[10px] sm:text-[11px] transition-all shadow-lg shadow-blue-500/20 active:scale-95"
           >
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.462 8.299c.147.123.332.247.455.336.123.089.231.201.268.34.037.139.043.286.012.427-.144.939-1.278 6.096-1.963 8.147-.043.123-.105.235-.192.332-.087.097-.198.172-.321.221-.123.049-.259.071-.393.064-.134-.007-.265-.043-.383-.104-.118-.061-.22-.148-.298-.255-.078-.107-.129-.232-.148-.363-.049-.333-.314-2.113-.444-3.003-.012-.084-.04-.165-.084-.235-.044-.07-.105-.126-.176-.164-.071-.038-.152-.057-.234-.055-.082.002-.162.023-.231.061-.413.235-3.018 1.706-3.856 2.185-.098.056-.208.086-.321.086-.113 0-.224-.03-.321-.086-.413-.235-1.129-.636-1.542-.871-.123-.07-.231-.161-.321-.271s-.148-.236-.172-.37-.024-.27-.001-.403.048-.261.121-.375c.34-.531 6.814-4.524 9.176-6.09.084-.056.183-.086.284-.086.101 0 .2.03.284.086z"/></svg>
             TELEGRAM
@@ -144,7 +144,7 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
             href="https://whatsapp.com/channel/0029VbBTx0y2f3EDHnwLHJ3q" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#1ebd5e] text-white rounded-2xl font-black text-[11px] transition-all shadow-lg shadow-green-500/20 active:scale-95"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 sm:py-3 bg-[#25D366] hover:bg-[#1ebd5e] text-white rounded-2xl font-black text-[10px] sm:text-[11px] transition-all shadow-lg shadow-green-500/20 active:scale-95"
           >
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-2.652 0-5.147 1.03-7.02 2.905-1.873 1.874-2.901 4.372-2.903 7.027-.001 2.224.646 3.734 1.555 5.237l-1.007 3.676 3.775-.99c.001 0 .001 0 0 0z"/></svg>
             WHATSAPP
@@ -185,22 +185,22 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
                       setSelectedProduct(product);
                       setSearchQuery(''); // Clear search after selection
                     }}
-                    className="w-full flex items-center gap-4 p-3 hover:bg-orange-50 transition-colors border-b border-gray-50 last:border-0 group"
+                    className="w-full flex items-center gap-2.5 sm:gap-4 p-2.5 sm:p-3 hover:bg-orange-50 transition-colors border-b border-gray-50 last:border-0 group"
                   >
-                    <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex-shrink-0 border border-gray-50 p-1 group-hover:scale-105 transition-transform">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl overflow-hidden flex-shrink-0 border border-gray-50 p-1 group-hover:scale-105 transition-transform">
                       <img src={product.imageUrl} alt="" className="w-full h-full object-contain mix-blend-multiply" />
                     </div>
-                    <div className="flex-1 text-left">
+                    <div className="flex-1 text-left min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className="text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-red-600 text-white border border-red-700 shadow-sm">
+                        <span className="text-[6px] sm:text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-red-600 text-white border border-red-700 shadow-sm">
                           {product.dealType?.replace('_', ' ') || 'Deal'}
                         </span>
-                        <span className="text-[7px] font-black text-gray-300 uppercase tracking-widest">{product.category}</span>
+                        <span className="text-[6px] sm:text-[7px] font-black text-gray-300 uppercase tracking-widest truncate">{product.category}</span>
                       </div>
-                      <h4 className="text-[11px] font-bold text-gray-900 line-clamp-1 group-hover:text-orange-600 transition-colors uppercase tracking-tight">{product.title}</h4>
-                      <span className="text-[10px] font-black text-orange-600 tracking-tighter">₹{product.price.toLocaleString()}</span>
+                      <h4 className="text-[10px] sm:text-[11px] font-bold text-gray-900 line-clamp-1 group-hover:text-orange-600 transition-colors uppercase tracking-tight">{product.title}</h4>
+                      <span className="text-[9px] sm:text-[10px] font-black text-orange-600 tracking-tighter">₹{product.price.toLocaleString()}</span>
                     </div>
-                    <Zap className="w-3 h-3 text-gray-200 group-hover:text-orange-500" />
+                    <Zap className="w-3 h-3 text-gray-200 group-hover:text-orange-500 flex-shrink-0" />
                   </button>
                 ))}
               {products.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
@@ -214,40 +214,40 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
       </div>
 
       {/* 3. DEAL ZONE SELECTOR (Row) */}
-      <div className="flex overflow-x-auto gap-4 pb-12 pt-2 no-scrollbar touch-pan-x -mx-4 px-6 sm:mx-0 sm:px-0">
+      <div className="flex overflow-x-auto gap-3 sm:gap-4 pb-8 sm:pb-12 pt-2 no-scrollbar touch-pan-x -mx-4 px-6 sm:mx-0 sm:px-0">
         {segments.map((seg) => (
           <button
             key={seg.id}
             onClick={() => setActiveSegment(seg.id as any)}
-            className={`flex-shrink-0 min-w-[160px] sm:flex-1 p-6 rounded-[2.5rem] border-2 transition-all duration-500 text-left relative overflow-hidden group ${
+            className={`flex-shrink-0 min-w-[135px] sm:min-w-[160px] sm:flex-1 p-4 sm:p-6 rounded-[1.8rem] sm:rounded-[2.5rem] border-2 transition-all duration-500 text-left relative overflow-hidden group ${
               activeSegment === seg.id 
-              ? `${seg.bg} ${seg.border} ring-[6px] ring-white shadow-2xl scale-105 z-10` 
+              ? `${seg.bg} ${seg.border} ring-[4px] sm:ring-[6px] ring-white shadow-xl sm:shadow-2xl scale-105 z-10` 
               : 'bg-white border-gray-100/50 hover:border-orange-100 hover:-translate-y-1'
             }`}
           >
             {activeSegment === seg.id && (
-              <div className="absolute top-0 right-0 p-3">
-                <div className={`w-2 h-2 rounded-full ${seg.color.replace('text', 'bg')} animate-ping`}></div>
+              <div className="absolute top-0 right-0 p-2.5 sm:p-3">
+                <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${seg.color.replace('text', 'bg')} animate-ping`}></div>
               </div>
             )}
-            <div className={`w-12 h-12 rounded-2xl ${seg.bg} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-500`}>
-              <seg.icon className={`w-6 h-6 ${seg.color}`} />
+            <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${seg.bg} flex items-center justify-center mb-3.5 sm:mb-5 group-hover:scale-110 transition-transform duration-500`}>
+              <seg.icon className={`w-4.5 h-4.5 sm:w-6 sm:h-6 ${seg.color}`} />
             </div>
-            <p className="text-[11px] font-black text-gray-900 uppercase tracking-tight mb-2">{seg.label}</p>
-            <p className="text-[9px] font-bold text-gray-500 leading-relaxed line-clamp-2 pr-2">{seg.desc}</p>
+            <p className="text-[10px] sm:text-[11px] font-black text-gray-900 uppercase tracking-tight mb-1.5 sm:mb-2">{seg.label}</p>
+            <p className="text-[8px] sm:text-[9px] font-bold text-gray-500 leading-relaxed line-clamp-2 pr-1.5 sm:pr-2">{seg.desc}</p>
           </button>
         ))}
       </div>
 
       {/* 4. CATEGORY FILTERS & VIEW TOGGLE */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12 bg-white/50 p-4 sm:p-2 rounded-[2.5rem] border border-gray-100 sm:border-transparent">
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar w-full sm:w-auto px-2 sm:px-0">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 mb-8 sm:mb-12 bg-white/50 p-3 sm:p-2 rounded-2xl sm:rounded-[2.5rem] border border-gray-100 sm:border-transparent">
+        <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar w-full sm:w-auto px-1 sm:px-0">
           <span className="hidden lg:inline text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mr-2">Quick Filter:</span>
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`flex-shrink-0 px-6 py-2.5 rounded-2xl text-[10px] font-black transition-all uppercase tracking-wider border-2 ${
+              className={`flex-shrink-0 px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black transition-all uppercase tracking-wider border-2 ${
                 selectedCategory === cat 
                 ? 'bg-gray-900 text-white border-gray-900 shadow-xl shadow-gray-900/10' 
                 : 'bg-white text-gray-500 border-gray-100 hover:border-orange-200'
@@ -261,7 +261,7 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
         <div className="flex items-center bg-gray-100/80 p-1.5 rounded-2xl w-full sm:w-auto shadow-inner">
           <button 
             onClick={() => setViewMode('categories')}
-            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'categories' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'categories' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
           >
             <Layers className="w-3.5 h-3.5" />
             <span className={viewMode === 'categories' ? '' : 'hidden lg:inline'}>By Category</span>
@@ -269,7 +269,7 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
           </button>
           <button 
             onClick={() => setViewMode('grid')}
-            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'grid' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'grid' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
           >
             <Grid className="w-3.5 h-3.5" />
             <span className={viewMode === 'grid' ? '' : 'hidden lg:inline'}>All at Once</span>
@@ -288,7 +288,7 @@ export default function Catalog({ isAdmin, onEdit }: { isAdmin?: boolean; onEdit
         ) : filteredProducts.length > 0 ? (
           <div className="space-y-16">
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-6">
+              <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-6">
                 {filteredProducts.map(product => (
                   <div key={product.id} id={`product-${product.id}`} className="transition-all duration-300">
                     <ProductCard 

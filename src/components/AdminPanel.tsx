@@ -111,100 +111,100 @@ function AutopostPanel() {
   const isLoading = ['scraping', 'ai', 'posting'].includes(autoStatus);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="bg-gradient-to-br from-purple-600 via-orange-500 to-pink-500 p-8 rounded-[2.5rem] text-white relative overflow-hidden">
+      <div className="bg-gradient-to-br from-purple-600 via-orange-500 to-pink-500 p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.15),transparent_60%)]"></div>
         <div className="relative">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-              <Sparkles className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-2.5 sm:gap-3 mb-2 sm:mb-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center backdrop-blur-sm">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
-              <h2 className="font-black text-2xl tracking-tighter">AI Autopost Magic</h2>
-              <p className="text-white/70 text-xs font-bold uppercase tracking-widest">Powered by Gemini 1.5 Flash</p>
+              <h2 className="font-black text-lg sm:text-2xl tracking-tighter">AI Autopost Magic</h2>
+              <p className="text-white/70 text-[9px] sm:text-xs font-bold uppercase tracking-widest">Powered by Gemini 1.5 Flash</p>
             </div>
           </div>
-          <p className="text-white/80 text-sm font-medium leading-relaxed max-w-lg">
+          <p className="text-white/80 text-xs sm:text-sm font-medium leading-relaxed max-w-lg">
             Paste any affiliate product link. Our AI bot will automatically scrape the image, clean the title, write a description, detect the category, and post the deal — in seconds.
           </p>
         </div>
       </div>
 
       {/* URL Input */}
-      <div className="space-y-3">
-        <label className="block text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Affiliate / Product URL</label>
-        <div className="flex gap-3">
+      <div className="space-y-2 sm:space-y-3">
+        <label className="block text-[10px] sm:text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Affiliate / Product URL</label>
+        <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="url"
             value={autoUrl}
             onChange={e => { setAutoUrl(e.target.value); setAutoError(''); setPreview(null); setAutoStatus('idle'); }}
             placeholder="https://www.amazon.in/dp/... or Flipkart, Meesho, etc."
-            className="flex-1 px-5 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none font-bold text-gray-900 transition-all text-sm"
+            className="w-full sm:flex-1 px-4 sm:px-5 py-3.5 sm:py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none font-bold text-gray-900 transition-all text-xs sm:text-sm"
             disabled={isLoading}
           />
           <button
             onClick={handleAutopost}
             disabled={isLoading || !autoUrl.trim()}
-            className="flex items-center gap-3 px-7 py-4 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white rounded-2xl font-black transition-all shadow-xl shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-7 py-3.5 sm:py-4 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white rounded-2xl font-black transition-all shadow-xl shadow-purple-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap text-xs sm:text-sm"
           >
-            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+            {isLoading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Zap className="w-4 h-4 sm:w-5 sm:h-5" />}
             {isLoading ? 'Working...' : 'AI Magic'}
           </button>
         </div>
         {autoError && (
-          <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-700 text-sm font-bold">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            {autoError}
+          <div className="flex items-start gap-2.5 p-3 sm:p-4 bg-red-50 border border-red-100 rounded-2xl text-red-700 text-xs sm:text-sm font-bold">
+            <AlertCircle className="w-4.5 h-4.5 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5" />
+            <span>{autoError}</span>
           </div>
         )}
       </div>
 
       {/* Status indicator */}
       {isLoading && (
-        <div className="flex items-center gap-4 p-6 bg-purple-50 border border-purple-100 rounded-2xl">
-          <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-            <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />
+        <div className="flex items-center gap-3 sm:gap-4 p-4 sm:p-6 bg-purple-50 border border-purple-100 rounded-2xl">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Loader2 className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-purple-600 animate-spin" />
           </div>
           <div>
-            <p className="font-black text-purple-900 text-sm">{statusMessages[autoStatus]}</p>
-            <p className="text-purple-500 text-xs font-medium mt-0.5">This takes 3–8 seconds. Please wait...</p>
+            <p className="font-black text-purple-900 text-xs sm:text-sm">{statusMessages[autoStatus]}</p>
+            <p className="text-purple-500 text-[10px] sm:text-xs font-medium mt-0.5">This takes 3–8 seconds. Please wait...</p>
           </div>
         </div>
       )}
 
       {/* Done state */}
       {autoStatus === 'done' && (
-        <div className="flex items-center gap-4 p-6 bg-green-50 border border-green-200 rounded-2xl">
-          <CheckCircle2 className="w-8 h-8 text-green-500 flex-shrink-0" />
+        <div className="flex items-center gap-3 sm:gap-4 p-4 sm:p-6 bg-green-50 border border-green-200 rounded-2xl">
+          <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8 text-green-500 flex-shrink-0" />
           <div>
-            <p className="font-black text-green-900 text-sm">🎉 Deal is now LIVE on OfferBazar!</p>
-            <p className="text-green-600 text-xs font-medium mt-0.5">Visitors can see it right now. Refreshing...</p>
+            <p className="font-black text-green-900 text-xs sm:text-sm">🎉 Deal is now LIVE on OfferBazar!</p>
+            <p className="text-green-600 text-[10px] sm:text-xs font-medium mt-0.5">Visitors can see it right now. Refreshing...</p>
           </div>
         </div>
       )}
 
       {/* Preview Card */}
       {preview && autoStatus === 'idle' && (
-        <div className="border-2 border-dashed border-orange-200 bg-orange-50/30 rounded-[2.5rem] p-8 space-y-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 bg-orange-100 rounded-xl flex items-center justify-center">
+        <div className="border-2 border-dashed border-orange-200 bg-orange-50/30 rounded-[1.5rem] sm:rounded-[2.5rem] p-4 sm:p-8 space-y-4 sm:space-y-6">
+          <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-orange-100 rounded-lg sm:rounded-xl flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4 text-orange-600" />
             </div>
-            <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm">Preview — Review Before Posting</h3>
+            <h3 className="font-black text-gray-900 uppercase tracking-tight text-xs sm:text-sm">Preview — Review Before Posting</h3>
           </div>
 
           {/* Preview content */}
-          <div className="bg-white rounded-[2rem] p-6 flex flex-col sm:flex-row gap-6 shadow-sm border border-orange-100">
+          <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 shadow-sm border border-orange-100">
             {preview.imageUrl && (
-              <div className="w-full sm:w-36 h-36 rounded-2xl bg-gray-50 flex items-center justify-center flex-shrink-0 overflow-hidden border border-gray-100 p-3">
+              <div className="w-full sm:w-32 h-32 sm:h-36 rounded-2xl bg-gray-50 flex items-center justify-center flex-shrink-0 overflow-hidden border border-gray-100 p-3">
                 <img src={preview.imageUrl} alt="" className="max-h-full object-contain mix-blend-multiply" />
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="px-3 py-1 bg-orange-100 text-orange-700 text-[9px] font-black rounded-full uppercase tracking-widest">{preview.category}</span>
-                <span className={`px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-widest ${preview.dealType === 'loot' ? 'bg-red-100 text-red-700' : preview.dealType === 'coupon' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 bg-orange-100 text-orange-700 text-[8px] sm:text-[9px] font-black rounded-full uppercase tracking-widest">{preview.category}</span>
+                <span className={`px-2.5 py-0.5 sm:px-3 sm:py-1 text-[8px] sm:text-[9px] font-black rounded-full uppercase tracking-widest ${preview.dealType === 'loot' ? 'bg-red-100 text-red-700' : preview.dealType === 'coupon' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
                   {preview.dealType?.replace('_', ' ')}
                 </span>
               </div>
@@ -212,36 +212,36 @@ function AutopostPanel() {
                 type="text"
                 value={preview.title}
                 onChange={e => setPreview({...preview, title: e.target.value})}
-                className="w-full font-black text-gray-900 text-sm bg-transparent border-b border-gray-100 focus:border-orange-400 outline-none pb-1 mb-3 tracking-tight"
+                className="w-full font-black text-gray-900 text-xs sm:text-sm bg-transparent border-b border-gray-100 focus:border-orange-400 outline-none pb-1 mb-2.5 sm:mb-3 tracking-tight"
               />
               <textarea
                 value={preview.description}
                 onChange={e => setPreview({...preview, description: e.target.value})}
                 rows={3}
-                className="w-full text-gray-500 text-xs bg-transparent border border-gray-100 focus:border-orange-300 outline-none rounded-xl p-2 resize-none"
+                className="w-full text-gray-500 text-[11px] sm:text-xs bg-transparent border border-gray-100 focus:border-orange-300 outline-none rounded-xl p-2 resize-none leading-relaxed"
               />
             </div>
           </div>
 
           {/* Price row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Deal Price (Auto-detected)</label>
+              <label className="block text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 sm:mb-2">Deal Price (Auto-detected)</label>
               <input
                 type="number"
                 value={preview.price}
                 onChange={e => setPreview({...preview, price: parseFloat(e.target.value) || 0})}
-                className="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-black text-gray-900 text-lg"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-black text-gray-900 text-base sm:text-lg"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Original MRP (Enter manually)</label>
+              <label className="block text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 sm:mb-2">Original MRP (Enter manually)</label>
               <input
                 type="number"
                 value={originalPrice}
                 onChange={e => setAutoOriginalPrice(e.target.value)}
                 placeholder="e.g. 5000"
-                className="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-bold"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none font-bold text-xs sm:text-sm"
               />
             </div>
           </div>
@@ -249,12 +249,12 @@ function AutopostPanel() {
           {/* Publish button */}
           <button
             onClick={handlePublish}
-            className="w-full flex items-center justify-center gap-3 py-5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-[1.5rem] font-black text-lg transition-all shadow-2xl shadow-green-500/30 active:scale-98"
+            className="w-full flex items-center justify-center gap-2 sm:gap-3 py-4 sm:py-5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-[1.2rem] sm:rounded-[1.5rem] font-black text-sm sm:text-lg transition-all shadow-2xl shadow-green-500/30 active:scale-98"
           >
-            <Sparkles className="w-6 h-6" />
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
             Publish Deal to OfferBazar Now!
           </button>
-          <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">You can edit the title and description above before publishing</p>
+          <p className="text-center text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-widest">You can edit the title and description above before publishing</p>
         </div>
       )}
     </div>
@@ -499,21 +499,21 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
   };
 
   return (
-    <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100 max-w-2xl mx-auto mb-12">
+    <div className="bg-white p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[3rem] shadow-sm border border-gray-100 max-w-2xl mx-auto mb-12">
       
       {/* Tab Switcher */}
-      <div className="flex items-center gap-3 mb-8 p-2 bg-gray-50 rounded-2xl border border-gray-100">
+      <div className="flex items-center gap-2.5 sm:gap-3 mb-6 sm:mb-8 p-1.5 sm:p-2 bg-gray-50 rounded-2xl border border-gray-100">
         <button
           onClick={() => setActiveTab('manual')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'manual' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all ${activeTab === 'manual' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
         >
-          <Plus className="w-4 h-4" /> Manual Post
+          <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Manual Post
         </button>
         <button
           onClick={() => setActiveTab('autopost')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'autopost' ? 'bg-gradient-to-r from-purple-500 to-orange-500 text-white shadow-lg shadow-purple-500/20' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider transition-all ${activeTab === 'autopost' ? 'bg-gradient-to-r from-purple-500 to-orange-500 text-white shadow-lg shadow-purple-500/20' : 'text-gray-400 hover:text-gray-600'}`}
         >
-          <Sparkles className="w-4 h-4" /> AI Autopost ✨
+          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> AI Autopost ✨
         </button>
       </div>
 
@@ -522,16 +522,16 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
 
       {/* Manual Tab */}
       {activeTab === 'manual' && <>
-      <div className="flex items-start justify-between mb-2">
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          {editingProduct ? <Save className="w-6 h-6 text-orange-500" /> : <Plus className="w-6 h-6 text-orange-500" />}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+          {editingProduct ? <Save className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-orange-500" /> : <Plus className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-orange-500" />}
           {editingProduct ? 'Edit Deal' : 'Add New Deal'}
         </h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {editingProduct && onCancel && (
             <button 
               onClick={onCancel}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-xl text-xs font-bold transition-all border border-gray-100"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-xl text-[10px] sm:text-xs font-bold transition-all border border-gray-100"
             >
               <X className="w-3 h-3" /> Cancel
             </button>
@@ -539,7 +539,7 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
           <button 
             onClick={handleMigrate}
             disabled={migrating}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-orange-50 text-gray-500 hover:text-orange-600 rounded-xl text-xs font-bold transition-all border border-gray-100 hover:border-orange-100"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 bg-gray-50 hover:bg-orange-50 text-gray-500 hover:text-orange-600 rounded-xl text-[10px] sm:text-xs font-bold transition-all border border-gray-100 hover:border-orange-100"
             title="Fix old products that aren't showing up"
           >
             {migrating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Database className="w-3 h-3" />}
@@ -547,12 +547,12 @@ export default function AdminPanel({ editingProduct, onCancel, onSuccess }: { ed
           </button>
         </div>
       </div>
-      <p className="text-sm text-gray-500 mb-8">
+      <p className="text-xs sm:text-sm text-gray-500 mb-6 sm:mb-8">
         {editingProduct ? `Editing: ${editingProduct.title}` : 'Add products via link or upload manually. All deals are live instantly.'}
       </p>
 
-      {error && <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-2xl text-sm border border-red-100">{error}</div>}
-      {success && <div className="mb-6 p-4 bg-orange-50 text-orange-700 rounded-2xl text-sm border border-orange-100 font-bold">{editingProduct ? 'Deal updated successfully!' : 'Deal added successfully!'}</div>}
+      {error && <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 text-red-700 rounded-2xl text-xs sm:text-sm border border-red-100">{error}</div>}
+      {success && <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-orange-50 text-orange-700 rounded-2xl text-xs sm:text-sm border border-orange-100 font-bold">{editingProduct ? 'Deal updated successfully!' : 'Deal added successfully!'}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
