@@ -3,6 +3,8 @@ import { createServer as createViteServer } from "vite";
 import * as path from "path";
 import * as cheerio from "cheerio";
 import cors from "cors";
+import { config as dotenvConfig } from "dotenv";
+dotenvConfig(); // Load .env variables (OPENROUTER_API_KEY etc.)
 
 async function startServer() {
   const app = express();
@@ -128,7 +130,9 @@ async function startServer() {
       const { getApps, getApp, initializeApp: initApp } = await import('firebase/app');
       const { getStorage: getStor, ref: storRef, uploadBytes: upBytes, getDownloadURL: getUrl } = await import('firebase/storage');
       const { getAuth: getA, signInWithEmailAndPassword: signIn } = await import('firebase/auth');
-      const firebaseConfig = (await import('./firebase-applet-config.json', { assert: { type: 'json' } })).default;
+      
+      const fs = await import('fs');
+      const firebaseConfig = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'firebase-applet-config.json'), 'utf8'));
 
       // Initialize (or get existing) app
       const apps = getApps();
@@ -158,7 +162,115 @@ async function startServer() {
     }
   });
 
-  // Vite middleware for development
+  // =============================================
+  // API: AI-Powered Scraper for Autopost
+  // =============================================
+  app.post("/api/autopost", async (req, res) => {
+    try {
+      const { url } = req.body;
+      if (!url) return res.status(400).json({ error: "URL is required" });
+
+      console.log(`[Scraper] Starting for: ${url}`);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+      const response = await fetch(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+          "Accept-Language": "en-IN,en;q=0.9",
+          "Referer": "https://www.google.com/",
+        },
+        signal: controller.signal,
+        redirect: 'follow'
+      });
+      clearTimeout(timeoutId);
+
+      let html = await response.text();
+      
+      // Simple Meta-Refresh Follow (Manual)
+      if (html.includes('http-equiv="refresh"') && html.length < 1000) {
+        const { load } = await import('cheerio');
+        const $shell = load(html);
+        const refreshContent = $shell('meta[http-equiv="refresh"]').attr('content');
+        if (refreshContent && refreshContent.includes('url=')) {
+          const nextUrl = refreshContent.split('url=')[1].trim();
+          if (nextUrl) {
+            const nextRes = await fetch(nextUrl.startsWith('http') ? nextUrl : new URL(nextUrl, response.url).href);
+            html = await nextRes.text();
+          }
+        }
+      }
+
+      const { load } = await import('cheerio');
+      const $ = load(html);
+
+      const ogTitle = $('meta[property="og:title"]').attr("content") || $('title').text() || "Unknown Product";
+      const ogDesc = $('meta[property="og:description"]').attr("content") || $('meta[name="description"]').attr("content") || "";
+      
+      let ogImage = $('meta[property="og:image"]').attr("content") || 
+                    $('meta[name="twitter:image"]').attr("content") || 
+                    $('#landingImage').attr('src') || 
+                    $('#main-image').attr('src') ||
+                    $('.a-dynamic-main-image').attr('src') ||
+                    $('.pdp-main-image').attr('src') || "";
+      
+      if (ogImage && ogImage.includes('data:image')) ogImage = ""; 
+      if (ogImage && ogImage.startsWith('//')) ogImage = 'https:' + ogImage;
+      else if (ogImage && ogImage.startsWith('/')) ogImage = new URL(url).origin + ogImage;
+
+      let price = 0;
+      const priceSelectors = ['.a-price-whole', '.pdp-price strong', '.price', '[class*="price"]'];
+      for (const sel of priceSelectors) {
+        const text = $(sel).first().text();
+        if (text) {
+          const match = text.replace(/[,₹\s]/g, '').match(/\d+(\.\d{1,2})?/);
+          if (match && parseFloat(match[0]) > 0) { price = parseFloat(match[0]); break; }
+        }
+      }
+
+      // AI Refinement via OpenRouter
+      const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+      let refined = { title: ogTitle, description: ogDesc, category: "Electronics", dealType: "best_offer" };
+
+      if (OPENROUTER_API_KEY) {
+        try {
+          const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "google/gemini-flash-1.5",
+              messages: [{
+                role: "user",
+                content: `Product: "${ogTitle}"\nDesc: "${ogDesc}"\n\nReturn a JSON object with: "title" (catchy, max 70 chars), "description" (2 sentence summary), "category" (one of: Mobile Phones, Laptops & PCs, Electronics, Groceries, Fashion, Home Decor, Personal Care, Appliances, Accessories, Miscellaneous), "dealType" (loot if price < 400, else best_offer).`
+              }],
+            })
+          });
+          if (aiRes.ok) {
+            const aiData = await aiRes.json();
+            const jsonMatch = aiData.choices?.[0]?.message?.content?.match(/\{[\s\S]*\}/);
+            if (jsonMatch) refined = JSON.parse(jsonMatch[0]);
+          }
+        } catch (e) { console.warn("[AI] Failed:", e); }
+      }
+
+      res.json({
+        ...refined,
+        price,
+        imageUrl: ogImage,
+        originalLink: url
+      });
+
+    } catch (err: any) {
+      console.error(`[Scraper] Failed:`, err);
+      res.status(500).json({ error: err.message || "Scraping failed" });
+    }
+  });
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
