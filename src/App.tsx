@@ -41,9 +41,31 @@ export default function App() {
 
   const [editingProduct, setEditingProduct] = useState<any>(null);
 
+  // Path-based Admin Access
+  React.useEffect(() => {
+    const handleUrlChange = () => {
+      const path = window.location.pathname;
+      if (path === '/admin') {
+        if (!isAdmin) {
+          setShowLoginModal(true);
+        } else {
+          setShowAdmin(true);
+        }
+        // Clean up URL to hide /admin if desired, or keep it. 
+        // For simplicity in a basic SPA without a router, keeping it is fine.
+      }
+    };
+
+    handleUrlChange();
+    window.addEventListener('popstate', handleUrlChange);
+    return () => window.removeEventListener('popstate', handleUrlChange);
+  }, [isAdmin]);
+
   const handleLogout = () => {
     setIsAdmin(false);
     setShowAdmin(false);
+    // Optionally redirect away from /admin
+    window.history.pushState({}, '', '/');
   };
 
   const startEditing = (product: any) => {
@@ -56,7 +78,7 @@ export default function App() {
     <div className="min-h-screen bg-[#F8FAFC] font-sans text-gray-900 selection:bg-orange-100 selection:text-orange-900">
       <nav className="border-b border-gray-200/40 bg-white/70 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3 group cursor-pointer" onClick={() => {setShowAdmin(false); setEditingProduct(null);}}>
+          <div className="flex items-center gap-2 sm:gap-3 group cursor-pointer" onClick={() => {setShowAdmin(false); setEditingProduct(null); window.history.pushState({}, '', '/');}}>
             <div className="relative w-10 h-10 sm:w-14 sm:h-14 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
               <img src="/logo.jpeg" alt="OfferBazar Logo" className="w-full h-full object-contain drop-shadow-xl" />
             </div>
@@ -71,7 +93,7 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            {isAdmin ? (
+            {isAdmin && (
               <div className="flex items-center gap-2 sm:gap-3">
                 <button 
                   onClick={() => {setShowAdmin(!showAdmin); setEditingProduct(null);}}
@@ -82,7 +104,7 @@ export default function App() {
                 </button>
                 <div className="h-6 w-px bg-gray-100 hidden xs:block"></div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-orange-500 text-white flex items-center justify-center font-black shadow-lg shadow-orange-500/30 text-xs">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-orange-500 text-white flex items-center justify-center font-black shadow-lg shadow-orange-500/30 text-xs text-glow-orange">
                     A
                   </div>
                   <button onClick={handleLogout} className="p-1.5 sm:p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Log Out">
@@ -90,13 +112,6 @@ export default function App() {
                   </button>
                 </div>
               </div>
-            ) : (
-              <button 
-                onClick={() => setShowLoginModal(true)}
-                className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-[10px] sm:text-sm font-black px-4 py-2 sm:px-6 sm:py-2.5 rounded-full transition-all shadow-lg shadow-orange-500/25 active:scale-95"
-               >
-                 <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">Sign In</span><span className="xs:hidden">Admin</span>
-              </button>
             )}
           </div>
         </div>
